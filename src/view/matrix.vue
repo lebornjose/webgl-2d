@@ -1,3 +1,5 @@
 <template>
-    <p>1111</p>
+    <div>使用二维场景的平移, 缩放，旋转</div>
+
+    <canvas></canvas>
 </template>
