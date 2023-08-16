@@ -1,6 +1,10 @@
 <template>
     <div>使用二维场景的平移, 缩放，旋转</div>
     <canvas id="webgl"></canvas>
+    <div class="flex">
+      <button>播放</button>
+      <button>暂停</button>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -12,9 +16,10 @@ import { initShaders } from '../utils/utils'
 const vertexShaderSource = `
     attribute vec2 a_Position;
     attribute vec2 a_texCoord;
+    uniform mat3 u_MvpMatrix;
     varying vec2 v_texCoord;
     void main(){
-        vec3 position = vec3(vec2(2.0,2.0)*a_Position-vec2(1.0, 1.0), 1.0); 
+        vec3 position = u_MvpMatrix * vec3(vec2(2.0,2.0)*a_Position-vec2(1.0, 1.0), 1.0); 
         gl_Position = vec4(position.xy, 0.0, 1.0);
         v_texCoord=a_texCoord;
     }
@@ -29,8 +34,8 @@ const fragmentShaderSource = `
 `
 onMounted(() => {
    const canvas: any = document.getElementById('webgl');
-   canvas.width = 720;
-   canvas.height = 1280;
+   canvas.width = 360;
+   canvas.height = 640;
    const gl = canvas.getContext('webgl');
 
    initShaders(gl, vertexShaderSource, fragmentShaderSource);
@@ -81,6 +86,7 @@ onMounted(() => {
    /* 获取uniform变量 */
    const u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
    gl.uniform1i(u_Sampler, 0);
+   var u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
    /* 建立video对象 */
    let video: HTMLVideoElement = document.createElement('video')
    video.src = '/video/output.mp4';
@@ -88,6 +94,15 @@ onMounted(() => {
    video.loop = false;
    video.setAttribute("crossOrigin", 'Anonymous');
 
+  let matrix = new TransformationMatrix()
+  matrix.scale(0.5, 0.5); // 缩放0.5
+
+  matrix.translate(0.5, 0); // 向右平移
+
+  matrix.rotate(15); // 旋转15
+
+  // matrix1.multiply(matrix2);
+  gl.uniformMatrix3fv(u_MvpMatrix, false, matrix.elements);
  
    const render = () => {
      gl.texImage2D(
