@@ -1,5 +1,5 @@
 <template>
-    <div>使用二维场景的平移, 缩放，旋转</div>
+    <div>使用webgl 实现视频的镜像翻转功能</div>
     <canvas id="webgl"></canvas>
     <div class="flex">
       <button @click="play">播放</button>
@@ -9,7 +9,6 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import TransformationMatrix from '../utils/mat3'
 import { initShaders } from '../utils/utils'
 
 
@@ -19,7 +18,7 @@ const vertexShaderSource = `
     uniform mat3 u_MvpMatrix;
     varying vec2 v_texCoord;
     void main(){
-        vec3 position = u_MvpMatrix * vec3(vec2(2.0,2.0)*a_Position-vec2(1.0, 1.0), 1.0); 
+        vec3 position = vec3(vec2(2.0,2.0)*a_Position-vec2(1.0, 1.0), 1.0); 
         gl_Position = vec4(position.xy, 0.0, 1.0);
         v_texCoord=a_texCoord;
     }
@@ -29,7 +28,10 @@ const fragmentShaderSource = `
     uniform sampler2D u_Sampler;
     varying vec2 v_texCoord;
     void main(){
-        gl_FragColor=texture2D(u_Sampler,v_texCoord);
+        // 纹理上下翻转
+        // gl_FragColor = texture2D(u_Sampler, vec2(v_texCoord.x, 1.0 - v_texCoord.y)); 
+        // 纹理左右翻转
+        gl_FragColor = texture2D(u_Sampler, vec2(1.0 - v_texCoord.x, v_texCoord.y)); 
     }  
 `
 let video: HTMLVideoElement
@@ -93,23 +95,12 @@ onMounted(() => {
    /* 获取uniform变量 */
    const u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
    gl.uniform1i(u_Sampler, 0);
-   var u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
    /* 建立video对象 */
-  video = document.createElement('video')
+   video = document.createElement('video')
    video.src = '/video/output.mp4';
    video.autoplay = false;
    video.loop = false;
    video.setAttribute("crossOrigin", 'Anonymous');
-
-  let matrix = new TransformationMatrix()
-  matrix.scale(0.5, 0.5); // 缩放0.5
-
-  matrix.translate(0.5, 0); // 向右平移
-
-  matrix.rotate(15); // 旋转15
-
-  // matrix1.multiply(matrix2);
-  gl.uniformMatrix3fv(u_MvpMatrix, false, matrix.elements);
  
    const render = () => {
      gl.texImage2D(

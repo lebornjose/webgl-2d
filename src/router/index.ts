@@ -1,6 +1,7 @@
 import type { App } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router';
 import Matrix from '../view/matrix.vue'
+import Flip from '../view/flip.vue'
 
 const routes = [
     {
@@ -11,6 +12,11 @@ const routes = [
       path: '/matrix',
       name: 'matrix',
       component: Matrix
+    },
+    {
+      path: '/flip',
+      name: 'flip',
+      component: Flip
     }
 ]
 
