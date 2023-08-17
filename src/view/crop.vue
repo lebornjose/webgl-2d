@@ -55,6 +55,10 @@ const play = () => {
 const pause = () => {
   video.pause();
 }
+
+// crop 裁剪参数，x0 -> x1 表示从x位置的0.2才是裁到0.8结束
+// y0 -> y1 表示从y轴的0.1开始到0.5结束 0.1 -> 0.6
+const crop = {x0: 0.2, x1: 0.8, y0: 0.1, y1: 0.6}
 onMounted(() => {
    const canvas: any = document.getElementById('webgl');
    canvas.width = 360;
@@ -117,8 +121,8 @@ onMounted(() => {
    video.autoplay = false;
    video.loop = false;
    video.setAttribute("crossOrigin", 'Anonymous');
-   gl.uniform2fv(u_ClipTopLeft, [0.3, 0.5]);  // 设置裁剪区域的左上角坐标 0.3 左边开始的位置， 0.5从下往上的裁剪距离
-    gl.uniform2fv(u_ClipBottomRight, [0.9, 0.8]); // 0.9 (1-0.9) 为从最右边往左的距离0.8(1-0.8) 从上往下的裁剪
+   gl.uniform2fv(u_ClipTopLeft, [crop.x0, 1 - crop.y1]);  // 设置裁剪区域的左上角坐标 0.3 左边开始的位置， 0.5从下往上的裁剪距离
+    gl.uniform2fv(u_ClipBottomRight, [crop.x1, 1-crop.y0]); // 0.9 (1-0.9) 为从最右边往左的距离0.8(1-0.8) 从上往下的裁剪
  
    const render = () => {
      gl.texImage2D(
