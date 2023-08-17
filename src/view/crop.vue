@@ -58,6 +58,7 @@ const pause = () => {
 
 // crop 裁剪参数，x0 -> x1 表示从x位置的0.2才是裁到0.8结束
 // y0 -> y1 表示从y轴的0.1开始到0.5结束 0.1 -> 0.6
+// 默认不裁剪为 {x0: 0, x1: 1, y0:0, y1:1}
 const crop = {x0: 0.2, x1: 0.8, y0: 0.1, y1: 0.6}
 onMounted(() => {
    const canvas: any = document.getElementById('webgl');
