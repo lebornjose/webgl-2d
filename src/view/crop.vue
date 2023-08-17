@@ -48,6 +48,7 @@ const fragmentShaderSource = `
         //  gl_FragColor = texture2D(u_Sampler, v_texCoord);
     }  
 `
+
 let video: HTMLVideoElement
 const play = () => {
     video.play();
