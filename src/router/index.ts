@@ -3,6 +3,7 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import Matrix from '../view/matrix.vue'
 import Flip from '../view/flip.vue'
 import Crop from '../view/crop.vue'
+import Filter from '../view/filter.vue'
 
 const routes = [
     {
@@ -23,6 +24,11 @@ const routes = [
       path: '/crop',
       name: 'crop',
       component: Crop
+    },
+    {
+      path: '/filter',
+      name: 'filter',
+      component: Filter
     }
 ]
 
