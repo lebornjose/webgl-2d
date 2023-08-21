@@ -15,7 +15,7 @@ import { initShaders } from '../utils/utils'
 
 const vertexShaderSource = `
     attribute vec2 a_Position;
-    attribute vec2 a_texCoord;
+    attribute vec2 a_texCoord; 
     uniform mat3 u_MvpMatrix;
     varying vec2 v_texCoord;
     void main(){
