@@ -9,17 +9,15 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import TransformationMatrix from '../utils/mat3'
 import { initShaders } from '../utils/utils'
 
 
 const vertexShaderSource = `
     attribute vec2 a_Position;
     attribute vec2 a_texCoord; 
-    uniform mat3 u_MvpMatrix;
     varying vec2 v_texCoord;
     void main(){
-        vec3 position = u_MvpMatrix * vec3(vec2(2.0,2.0)*a_Position-vec2(1.0, 1.0), 1.0); 
+        vec3 position = vec3(vec2(2.0,2.0)*a_Position-vec2(1.0, 1.0), 1.0); 
         gl_Position = vec4(position.xy, 0.0, 1.0);
         v_texCoord=a_texCoord;
     }
@@ -27,9 +25,18 @@ const vertexShaderSource = `
 const fragmentShaderSource = `
     precision mediump float;
     uniform sampler2D u_Sampler;
+    uniform float u_Temperature;
     varying vec2 v_texCoord;
     void main(){
-        gl_FragColor=texture2D(u_Sampler,v_texCoord);
+      vec4 color = texture2D(u_Sampler,v_texCoord);
+      vec3 temperature = vec3(1.0, 1.0, 1.0);
+      if(u_Temperature < 5000.0) {
+        temperature.r = clamp((u_Temperature - 1000.0) / (5000.0 - 1000.0), 0.0, 1.0);
+      } else {
+        temperature.b = clamp((65000.0 - u_Temperature) / (65000.0 - 5000.0), 0.0, 1.0);
+      }
+
+      gl_FragColor = vec4(color.rgb * temperature, color.a);
     }  
 `
 let video: HTMLVideoElement
@@ -93,7 +100,10 @@ onMounted(() => {
    /* 获取uniform变量 */
    const u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
    gl.uniform1i(u_Sampler, 0);
-   var u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
+
+   const u_Temperature = gl.getUniformLocation(gl.program, 'u_Temperature');
+   gl.uniform1f(u_Temperature, 1000.0);
+
    /* 建立video对象 */
   video = document.createElement('video')
    video.src = '/video/output.mp4';
@@ -101,15 +111,6 @@ onMounted(() => {
    video.loop = false;
    video.setAttribute("crossOrigin", 'Anonymous');
 
-  let matrix = new TransformationMatrix()
-  matrix.scale(0.5, 0.5); // 缩放0.5
-
-  matrix.translate(0.5, 0); // 向右平移
-
-  matrix.rotate(15); // 旋转15
-
-  // matrix1.multiply(matrix2);
-  gl.uniformMatrix3fv(u_MvpMatrix, false, matrix.elements);
  
    const render = () => {
      gl.texImage2D(

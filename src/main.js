@@ -1,13 +1,13 @@
 import { createApp } from 'vue'
 import './style.css'
 import { setupRouter } from './router';
+import Antd from 'ant-design-vue';
 import App from './App.vue'
-import "ant-design-vue/dist/antd.css";
+import 'ant-design-vue/dist/reset.css';
 
-import { DatePicker } from "ant-design-vue";
 
 
 const app = createApp(App)
-app.use(DatePicker);
+app.use(Antd);
 setupRouter(app)
 app.mount('#app')
