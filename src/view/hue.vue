@@ -6,10 +6,6 @@
       </div>
       <div class="flex">
         <div class="item">
-          <span class="text">色温</span>
-          <a-slider :min="1000" v-model:value="state.temperature" :max="65500" @change="change"/>
-        </div>
-        <div class="item">
           <span class="text">色调</span>
           <a-slider :step="0.1" :min="-1" v-model:value="state.hue" :max="1" @change="change"/>
         </div>
@@ -111,18 +107,8 @@ const fragmentShaderSource = `
 
     void main(){
       vec4 color = texture2D(u_Sampler,v_texCoord);
-
-      // vec3 temperature = vec3(1.0, 1.0, 1.0);
-      // if(u_Temperature < 5000.0) {
-      //   temperature.r = clamp((u_Temperature - 1000.0) / (5000.0 - 1000.0), 0.0, 1.0);
-      // } else {
-      //   temperature.b = clamp((65000.0 - u_Temperature) / (65000.0 - 5000.0), 0.0, 1.0);
-      // }
-
-      vec4 color1 = vec4(color.rgb , color.a);
-
       // 将RGB颜色转换为HSV颜色
-      vec3 hsv = rgbToHsv(color1.rgb);
+      vec3 hsv = rgbToHsv(color.rgb);
 
       // 调整色调
       float hue = hsv.x + u_Hue;
@@ -205,8 +191,6 @@ onMounted(() => {
    const u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
    gl.uniform1i(u_Sampler, 0);
 
-  //  const u_Temperature = gl.getUniformLocation(gl.program, 'u_Temperature');
-  //  gl.uniform1f(u_Temperature, state.temperature);
    const u_Hue = gl.getUniformLocation(gl.program, 'u_Hue');
    gl.uniform1f(u_Hue, state.hue); // 设置色调值为0.5
 
