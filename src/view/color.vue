@@ -13,6 +13,14 @@
         <span class="text">色调</span>
         <a-slider :step="0.1" :min="-1" v-model:value="state.hue" :max="1" @change="change"/>
       </div> -->
+      <div class="item">
+        <span class="text">饱和度</span>
+        <a-slider :step="0.1" :min="0" v-model:value="state.saturation" :max="2" @change="change"/>
+      </div>
+      <div class="item">
+        <span class="text">亮度</span>
+        <a-slider :step="0.1" :min="-1" v-model:value="state.brightness" :max="1" @change="change"/>
+      </div>
       <div>
         <button @click="play">播放</button>
         <button @click="pause">暂停</button>
@@ -26,8 +34,10 @@ import { onMounted, reactive } from 'vue';
 import { initShaders } from '../utils/utils'
 
 const state = reactive({
-  temperature: 5000,
-  hue: 0
+  temperature: 5000,  // 色调
+  hue: 0,          // 色温
+  saturation: 1, // 饱和度
+  brightness: 0, // 亮度
 })
 
 
@@ -45,22 +55,84 @@ const fragmentShaderSource = `
   precision mediump float;
   uniform sampler2D u_Sampler;
   uniform float u_Temperature;
+  uniform float u_Saturation;
+  uniform float u_Brightness;
   varying vec2 v_texCoord;
 
+  vec3 rgbToHsv(vec3 rgb) {
+    vec3 hsv;
+    float maxVal = max(max(rgb.r, rgb.g), rgb.b);
+    float minVal = min(min(rgb.r, rgb.g), rgb.b);
+    float diff = maxVal - minVal;
 
-  
+    if (maxVal == minVal) {
+      hsv.x = 0.0;
+    } else if (maxVal == rgb.r) {
+      hsv.x = mod((rgb.g - rgb.b) / diff, 6.0);
+    } else if (maxVal == rgb.g) {
+      hsv.x = (rgb.b - rgb.r) / diff + 2.0;
+    } else {
+      hsv.x = (rgb.r - rgb.g) / diff + 4.0;
+    }
+    if (maxVal == 0.0) {
+      hsv.y = 0.0;
+    } else {
+      hsv.y = diff / maxVal;
+    }
+    hsv.z = maxVal;
+    return hsv;
+  }
+
+  vec3 hsvToRgb(vec3 hsv) {
+    vec3 rgb;
+    float h = hsv.x;
+    float s = hsv.y;
+    float v = hsv.z;
+
+    float c = s * v;
+    float x = c * (1.0 - abs(mod(h, 2.0) - 1.0));
+    float m = v - c;
+
+    if (h < 1.0) {
+      rgb = vec3(c, x, 0.0);
+    } else if (h < 2.0) {
+      rgb = vec3(x, c, 0.0);
+    } else if (h < 3.0) {
+      rgb = vec3(0.0, c, x);
+    } else if (h < 4.0) {
+      rgb = vec3(0.0, x, c);
+    } else if (h < 5.0) {
+      rgb = vec3(x, 0.0, c);
+    } else {
+      rgb = vec3(c, 0.0, x);
+    }
+
+    rgb += m;
+
+    return rgb;
+  }
 
   void main(){
     vec4 color = texture2D(u_Sampler,v_texCoord);
-
     vec3 temperature = vec3(1.0, 1.0, 1.0);
     if(u_Temperature < 5000.0) {
       temperature.r = clamp((u_Temperature - 1000.0) / (5000.0 - 1000.0), 0.0, 1.0);
     } else {
       temperature.b = clamp((65000.0 - u_Temperature) / (65000.0 - 5000.0), 0.0, 1.0);
     }
+    
+    vec4 color1 = vec4(color.rgb * temperature, color.a);
 
-    gl_FragColor = vec4(color.rgb * temperature, color.a);
+    vec3 hsv = rgbToHsv(color1.rgb);
+
+    // 调整饱和度
+    hsv.y *= u_Saturation;
+    vec3 rgb = hsvToRgb(hsv);
+
+    // 调整亮度
+    rgb += vec3(u_Brightness);
+
+    gl_FragColor = vec4(rgb, color.a);
   }  
 `
 let video: HTMLVideoElement
@@ -74,6 +146,14 @@ const pause = () => {
 const change = () => {
   const u_Temperature = gl.getUniformLocation(gl.program, 'u_Temperature');
   gl.uniform1f(u_Temperature, state.temperature);
+
+  const u_Saturation = gl.getUniformLocation(gl.program, 'u_Saturation');
+  gl.uniform1f(u_Saturation, state.saturation); 
+
+  const u_Brightness = gl.getUniformLocation(gl.program, 'u_Brightness');
+  gl.uniform1f(u_Brightness, state.brightness); // 设置饱和度值为1.5
+
+
   gl.clear(gl.COLOR_BUFFER_BIT);
   gl.drawArrays(gl.TRIANGLES, 0, 6);
 }
@@ -134,6 +214,14 @@ onMounted(() => {
 
   const u_Temperature = gl.getUniformLocation(gl.program, 'u_Temperature');
   gl.uniform1f(u_Temperature, state.temperature);
+  
+  const u_Saturation = gl.getUniformLocation(gl.program, 'u_Saturation');
+  gl.uniform1f(u_Saturation, state.saturation); // 设置饱和度值为1.5
+
+  const u_Brightness = gl.getUniformLocation(gl.program, 'u_Brightness');
+  gl.uniform1f(u_Brightness, state.brightness); // 设置饱和度值为1.5
+
+
 
   /* 建立video对象 */
   video = document.createElement('video')
@@ -188,7 +276,7 @@ h3 {
 
 .item {
   display: flex;
-  width: 420px;
+  width: 450px;
   align-items: center;
 }
 
