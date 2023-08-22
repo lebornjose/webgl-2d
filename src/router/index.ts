@@ -4,6 +4,7 @@ import Matrix from '../view/matrix.vue'
 import Flip from '../view/flip.vue'
 import Crop from '../view/crop.vue'
 import Filter from '../view/filter.vue'
+import Color from '../view/color.vue'
 
 const routes = [
     {
@@ -29,6 +30,11 @@ const routes = [
       path: '/filter',
       name: 'filter',
       component: Filter
+    },
+    {
+      path: '/color',
+      name: 'color',
+      component: Color
     }
 ]
 
