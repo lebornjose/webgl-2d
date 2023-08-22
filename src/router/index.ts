@@ -5,6 +5,7 @@ import Flip from '../view/flip.vue'
 import Crop from '../view/crop.vue'
 import Filter from '../view/filter.vue'
 import Color from '../view/color.vue'
+import Hue from '../view/Hue.vue'
 
 const routes = [
     {
@@ -35,6 +36,11 @@ const routes = [
       path: '/color',
       name: 'color',
       component: Color
+    },
+    {
+      path: '/hue',
+      name: 'hue',
+      component: Hue  
     }
 ]
 

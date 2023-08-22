@@ -22,11 +22,11 @@ import { onMounted, reactive } from 'vue';
 import { initShaders } from '../utils/utils'
 
 const state = reactive({
-  temperature: 5000,
   hue: 0
 })
 
-
+// 参考文档
+// https://segmentfault.com/a/1190000037668990
 const vertexShaderSource = `
     attribute vec2 a_Position;
     attribute vec2 a_texCoord; 
@@ -40,84 +40,34 @@ const vertexShaderSource = `
 const fragmentShaderSource = `
     precision mediump float;
     uniform sampler2D u_Sampler;
-    // uniform float u_Temperature;
     uniform float u_Hue;
     varying vec2 v_texCoord;
-
-
-    vec3 rgbToHsv(vec3 rgb) {
-      vec3 hsv;
-
-      float maxVal = max(max(rgb.r, rgb.g), rgb.b);
-      float minVal = min(min(rgb.r, rgb.g), rgb.b);
-      float diff = maxVal - minVal;
-
-      if (maxVal == minVal) {
-        hsv.x = 0.0;
-      } else if (maxVal == rgb.r) {
-        hsv.x = mod((rgb.g - rgb.b) / diff, 6.0);
-      } else if (maxVal == rgb.g) {
-        hsv.x = (rgb.b - rgb.r) / diff + 2.0;
-      } else {
-        hsv.x = (rgb.r - rgb.g) / diff + 4.0;
-      }
-
-      if (maxVal == 0.0) {
-        hsv.y = 0.0;
-      } else {
-        hsv.y = diff / maxVal;
-      }
-
-      hsv.z = maxVal;
-
-      return hsv;
-    }
-
-    vec3 hsvToRgb(vec3 hsv) {
-      vec3 rgb;
-
-      float h = hsv.x;
-      float s = hsv.y;
-      float v = hsv.z;
-
-      float c = s * v;
-      float x = c * (1.0 - abs(mod(h, 2.0) - 1.0));
-      float m = v - c;
-
-      if (h < 1.0) {
-        rgb = vec3(c, x, 0.0);
-      } else if (h < 2.0) {
-        rgb = vec3(x, c, 0.0);
-      } else if (h < 3.0) {
-        rgb = vec3(0.0, c, x);
-      } else if (h < 4.0) {
-        rgb = vec3(0.0, x, c);
-      } else if (h < 5.0) {
-        rgb = vec3(x, 0.0, c);
-      } else {
-        rgb = vec3(c, 0.0, x);
-      }
-
-      rgb += m;
-
-      return rgb;
-    }
-
-    
-
+    const highp vec4 kRGBToYPrime = vec4 (0.299, 0.587, 0.114, 0.0);
+    const highp vec4 kRGBToI = vec4 (0.595716, -0.274453, -0.321263, 0.0);
+    const highp vec4 kRGBToQ = vec4 (0.211456, -0.522591, 0.31135, 0.0);
+    const highp vec4 kYIQToR = vec4 (1.0, 0.9563, 0.6210, 0.0);
+    const highp vec4 kYIQToG = vec4 (1.0, -0.2721, -0.6474, 0.0);
+    const highp vec4 kYIQToB = vec4 (1.0, -1.1070, 1.7046, 0.0);
     void main(){
-      vec4 color = texture2D(u_Sampler,v_texCoord);
-      // 将RGB颜色转换为HSV颜色
-      vec3 hsv = rgbToHsv(color.rgb);
+      highp vec4 color = texture2D(u_Sampler, v_texCoord);
 
-      // 调整色调
-      float hue = hsv.x + u_Hue;
-      hsv.x = hue - floor(hue);
-      
-      // 将HSV颜色转换回RGB颜色
-      vec3 rgb = hsvToRgb(hsv);
+      highp float YPrime = dot (color, kRGBToYPrime);
+      highp float I = dot (color, kRGBToI);
+      highp float Q = dot (color, kRGBToQ);
 
-      gl_FragColor = vec4(rgb, color.a);
+      highp float hue = atan (Q, I);
+      highp float chroma = sqrt (I * I + Q * Q);
+      // Make the user's adjustments
+      hue += (-u_Hue);
+      // Convert back to YIQ Q = chroma * sin (hue);
+      I = chroma * cos (hue);
+      // Convert back to RGB
+      highp vec4 yIQ = vec4 (YPrime, I, Q, 0.0);
+      color.r = dot (yIQ, kYIQToR);
+      color.g = dot (yIQ, kYIQToG);
+      color.b = dot (yIQ, kYIQToB);
+      // Save the result
+      gl_FragColor = color;
     }  
 `
 let video: HTMLVideoElement
@@ -129,8 +79,6 @@ const pause = () => {
   video.pause();
 }
 const change = () => {
-  // const u_Temperature = gl.getUniformLocation(gl.program, 'u_Temperature');
-  // gl.uniform1f(u_Temperature, state.temperature);
   const u_Hue = gl.getUniformLocation(gl.program, 'u_Hue');
   gl.uniform1f(u_Hue, state.hue); // 设置色调值为0.5
   gl.clear(gl.COLOR_BUFFER_BIT);
