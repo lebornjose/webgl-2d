@@ -8,5 +8,38 @@
 </template>
 
 <script lang="ts" setup>
+import { onMounted } from 'vue';
+import { initShaders } from '../utils/utils'
 
+
+const vertexShaderSource = `
+    attribute vec2 a_Position;
+    attribute vec2 a_texCoord;
+    uniform mat3 u_MvpMatrix;
+    varying vec2 v_texCoord;
+    void main(){
+        vec3 position = u_MvpMatrix * vec3(vec2(2.0,2.0)*a_Position-vec2(1.0, 1.0), 1.0); 
+        gl_Position = vec4(position.xy, 0.0, 1.0);
+        v_texCoord=a_texCoord;
+    }
+`
+const fragmentShaderSource = `
+    precision mediump float;
+    uniform sampler2D u_Sampler;
+    varying vec2 v_texCoord;
+    void main(){
+        gl_FragColor=texture2D(u_Sampler,v_texCoord);
+    }  
+`
+
+
+
+onMounted(() => {
+  const canvas: any = document.getElementById('webgl');
+   canvas.width = 360;
+   canvas.height = 640;
+   const gl = canvas.getContext('webgl');
+
+   initShaders(gl, vertexShaderSource, fragmentShaderSource);
+})
 </script>
