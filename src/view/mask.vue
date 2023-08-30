@@ -41,5 +41,12 @@ onMounted(() => {
    const gl = canvas.getContext('webgl');
 
    initShaders(gl, vertexShaderSource, fragmentShaderSource);
+   gl.clearColor(0.0, 0.0, 0.0, 1.0);
+   const source = new Float32Array([1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0]);
+  
+   const sourceBuffer = gl.createBuffer();
+   gl.bindBuffer(gl.ARRAY_BUFFER, sourceBuffer);
+   gl.bufferData(gl.ARRAY_BUFFER, source, gl.STATIC_DRAW);
+   const a_Position = gl.getAttribLocation(gl.program, 'a_Position');
 })
 </script>
