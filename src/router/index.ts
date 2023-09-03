@@ -6,6 +6,7 @@ import Crop from '../view/crop.vue'
 import Filter from '../view/filter.vue'
 import Color from '../view/color.vue'
 import Mask from '../view/Mask.vue'
+import Hue from '../view/Hue.vue'
 
 const routes = [
     {
@@ -41,6 +42,11 @@ const routes = [
       path: '/mask',
       name: 'mask',
       component: Mask
+    },
+    {
+      path: '/hue',
+      name: 'hue',
+      component: Hue  
     }
 ]
 
