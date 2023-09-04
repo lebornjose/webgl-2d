@@ -32,6 +32,9 @@ const fragmentShaderSource = `
       // 定义裁剪区域，这里使用一个矩形作为示例
       const vec2 clipPosition = vec2(0.125, 0.125);
       const vec2 clipSize = vec2(0.25, 0.25);
+      // 圆形遮罩
+      // const vec2 circleCenter = vec2(0.5, 0.5);
+      // const float circleRadius = 0.4;
 
       void main(){
         vec2 st = gl_FragCoord.xy / u_resolution;
