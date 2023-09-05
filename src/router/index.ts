@@ -7,6 +7,7 @@ import Filter from '../view/filter.vue'
 import Color from '../view/color.vue'
 import Mask from '../view/Mask.vue'
 import Hue from '../view/Hue.vue'
+import CirMask from '../view/cir_mask.vue'
 
 const routes = [
     {
@@ -47,6 +48,11 @@ const routes = [
       path: '/hue',
       name: 'hue',
       component: Hue  
+    },
+    {
+      path: '/cir_mask',
+      name: 'cir_mask',
+      component: CirMask
     }
 ]
 
