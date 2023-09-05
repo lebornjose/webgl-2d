@@ -4,7 +4,7 @@
     <canvas id="webgl"></canvas>
     <div class="flex">
       <button @click="play">播放</button>
-      <button @click="pause">播放</button>
+      <button @click="pause">暂停</button>
       <button @click="reversal">蒙版反转</button>
     </div>
   </template>
@@ -33,11 +33,14 @@
         varying vec2 v_texCoord;
   
         // 圆形遮罩
-        const vec2 circleCenter = vec2(0.25, 0.25);
+        const vec2 circleCenter = vec2(0.25, 0.5);
         const float circleRadius = 0.2;
+        const float aspectRatio = 1.7777777777777777; // 画布高宽比
   
         void main(){
-          vec2 st = gl_FragCoord.xy / u_resolution;
+          vec2 st = gl_FragCoord.xy / u_resolution; 
+
+          st.y *= aspectRatio;
           // 计算当前像素到圆心的距离
           float distance = distance(st, circleCenter);
 
