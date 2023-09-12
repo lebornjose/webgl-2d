@@ -2,6 +2,8 @@
 <template>
     <div>使用webgl 实现视频的转场功能功能</div>
     <canvas id="webgl"></canvas>
+
+    <p>时间: {{ currentTime  }}</p>
     <div class="flex">
         <button @click="play">播放</button>
         <button @click="pause">暂停</button>
@@ -9,7 +11,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { initShaders } from '../utils/utils'
 
 const vertexShaderSource = `
@@ -45,30 +47,86 @@ let fragmentShaderSource = `
     }
 `;
 
-
+const currentTime = ref(0);
+const state = ref(0) // 0 暂停， 1 播放状态
 
 const play = () => {
-
+    state.value = 1
+   let startTime = performance.now();
+   video.play()
+   const start = () => {
+        requestAnimationFrame(() => {
+            if(state.value) {
+                let time = performance.now()
+                currentTime.value = (time - startTime) / 1000
+                if(currentTime.value >= 5 && currentTime.value <=6 ) {
+                    video1.play()
+                    const v_mix = gl.getUniformLocation(gl.program, 'mix');
+                    let rate = (currentTime.value - 5) / 1
+                    console.log(rate)
+                    gl.uniform1f(v_mix, rate);
+                }
+                if(currentTime.value > 6) {
+                    video.pause()
+                }
+                start()
+                render()
+            }
+        })
+   }
+   start()
 }
 
 const pause = () => {
-
+    state.value = 0
+    video.pause()
+    video1.pause()
 }
 let gl: any = null
 let video: any = null
 let video1: any = null
+let textureA: WebGLTexture | null = null;
+let textureB: WebGLTexture | null = null;
+
+const createTexture = (gl: WebGLRenderingContext): WebGLTexture | null => {
+  const texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0]));
+  
+  return texture;
+};
 
 const render = () => {
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0,
-      gl.RGB,
-      gl.RGB,
-      gl.UNSIGNED_BYTE,
-      video
-    )
     gl.clear(gl.COLOR_BUFFER_BIT);
+    const mix = (currentTime.value - 5) / 1;
+
+      // 绑定纹理 A
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, textureA);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, video);
+
+      // 绑定纹理 B
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, textureB);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, video1);
+
+    const imageAUniform = gl.getUniformLocation(gl.program, 'u_image_a');
+    const imageBUniform = gl.getUniformLocation(gl.program, 'u_image_b');
+    gl.uniform1i(imageAUniform, 0); // 将纹理 A 的索引绑定到 uniform 变量上
+    gl.uniform1i(imageBUniform, 1); // 将纹理 B 的索引绑定到 uniform 变量上
+    
+
+    // const mixUniform = gl.getUniformLocation(gl.program, 'mix');
+    // gl.uniform1f(mixUniform, mix);
+
     gl.drawArrays(gl.TRIANGLES, 0, 6);
+  
+   
     if (!video.paused) {
       requestAnimationFrame(render);
     }
@@ -115,24 +173,12 @@ onMounted(() => {
 
     /* 图像预处理 */
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
-    /* 准备三个角色 */
-    gl.activeTexture(gl.TEXTURE0);
-    const texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    
 
-    /* 获取uniform变量 */
-    const u_image_a = gl.getUniformLocation(gl.program, 'u_image_a');
-    gl.uniform1i(u_image_a, 0);
+    textureA = createTexture(gl);
+    textureB = createTexture(gl);
 
-    const u_image_b = gl.getUniformLocation(gl.program, 'u_image_b');
-    gl.uniform1i(u_image_b, 0);
-
-    const v_mix = gl.getUniformLocation(gl.program, 'v_mix');
+    const v_mix = gl.getUniformLocation(gl.program, 'mix');
     gl.uniform1i(v_mix, 0.0);
 
 
@@ -146,7 +192,7 @@ onMounted(() => {
 
      /* 建立video对象 */
     video1 = document.createElement('video')
-    video1.src = '/video/output.mp4';
+    video1.src = 'https://creative-alloss.getmogic.com/TEST/process/20230529/vc-upload-1685340741075-6.mp4';
     video1.autoplay = false;
     video1.loop = false;
     video1.setAttribute("crossOrigin", 'Anonymous');
@@ -155,7 +201,7 @@ onMounted(() => {
     video.addEventListener('loadeddata', function (e) {
         video.currentTime = 0;
         setTimeout(() => {
-        render();
+            render();
         }, 50);
     })
 })
