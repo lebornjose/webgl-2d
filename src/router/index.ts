@@ -9,6 +9,7 @@ import Mask from '../view/Mask.vue'
 import Hue from '../view/Hue.vue'
 import CirMask from '../view/cir_mask.vue'
 import FiveMask from '../view/five_mask.vue'
+import Transition from '../view/transition.vue'
 
 const routes = [
     {
@@ -59,6 +60,11 @@ const routes = [
       path: '/five_mask',
       name: 'five_mask',
       component: FiveMask
+    },
+    {
+      path: '/transition',
+      name: 'transition',
+      component: Transition
     }
 ]
 
