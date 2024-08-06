@@ -11,6 +11,7 @@ import CirMask from '../view/cir_mask.vue'
 import FiveMask from '../view/five_mask.vue'
 import Transition from '../view/transition.vue'
 import InAnimation from '../view/in_animation.vue'
+import WebAv from '../view/web_av.vue'
 import Effect from '../view/effect.vue'
 
 const routes = [
@@ -72,6 +73,11 @@ const routes = [
       path: '/in_animation',
       name: 'in_animation',
       component: InAnimation
+    },
+    {
+      path: '/web_av',
+      name: 'WebAv',
+      component: WebAv
     },
     {
       path: '/effect',
