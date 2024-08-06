@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@webav/av-cliper": "^0.14.4",
     "ant-design-vue": "4.0.0-rc.6",
     "vue": "^3.3.4"
   },
