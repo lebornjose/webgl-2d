@@ -1,94 +1,80 @@
+
+<!-- 支持画面特效 -->
 <template>
-    <h3>使用webgl 实现色值的变化调整</h3>
-    <div class="main">
-      <div class="left-canvas">
-        <canvas id="webgl"></canvas>
-      </div>
-      <div class="flex">
-        <div class="item">
-          <span class="text">色调</span>
-          <a-slider :step="0.1" :min="-1" v-model:value="state.hue" :max="1" @change="change"/>
-        </div>
-        <div>
-          <button @click="play">播放</button>
-          <button @click="pause">暂停</button>
-        </div>
-      </div>
+    <div>使用webgl 实现视频的九宫格特效功能</div>
+    <canvas id="webgl" style="width: 360;height: 720px"></canvas>
+    <div class="flex">
+      <button @click="play">播放</button>
+      <button @click="pause">暂停</button>
     </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive } from 'vue';
+import { onMounted } from 'vue';
 import { initShaders } from '../utils/utils'
 
-const state = reactive({
-  hue: 0
-})
 
-// 参考文档
-// https://segmentfault.com/a/1190000037668990
 const vertexShaderSource = `
     attribute vec2 a_Position;
-    attribute vec2 a_texCoord; 
+    attribute vec2 a_texCoord;
+    uniform mat3 u_MvpMatrix;
     varying vec2 v_texCoord;
     void main(){
         vec3 position = vec3(vec2(2.0,2.0)*a_Position-vec2(1.0, 1.0), 1.0); 
         gl_Position = vec4(position.xy, 0.0, 1.0);
-        v_texCoord=a_texCoord;
+        v_texCoord = vec2(a_texCoord.x, a_texCoord.y);
     }
 `
 const fragmentShaderSource = `
     precision mediump float;
+    // 视频纹理
     uniform sampler2D u_Sampler;
-    uniform float u_Hue;
     varying vec2 v_texCoord;
-    const highp vec4 kRGBToYPrime = vec4 (0.299, 0.587, 0.114, 0.0);
-    const highp vec4 kRGBToI = vec4 (0.595716, -0.274453, -0.321263, 0.0);
-    const highp vec4 kRGBToQ = vec4 (0.211456, -0.522591, 0.31135, 0.0);
-    const highp vec4 kYIQToR = vec4 (1.0, 0.9563, 0.6210, 0.0);
-    const highp vec4 kYIQToG = vec4 (1.0, -0.2721, -0.6474, 0.0);
-    const highp vec4 kYIQToB = vec4 (1.0, -1.1070, 1.7046, 0.0);
+    
     void main(){
-      highp vec4 color = texture2D(u_Sampler, v_texCoord);
+      // 计算九宫格的行和列数
+      float rows = 3.0; // 行数
+      float cols = 3.0; // 列数
 
-      highp float YPrime = dot (color, kRGBToYPrime);
-      highp float I = dot (color, kRGBToI);
-      highp float Q = dot (color, kRGBToQ);
+      // 计算当前纹理坐标对应的宫格索引
+      vec2 grid = vec2(floor(v_texCoord.x * cols), floor(v_texCoord.y * rows));
 
-      highp float hue = atan (Q, I);
-      highp float chroma = sqrt (I * I + Q * Q);
-      // Make the user's adjustments
-      hue += (-u_Hue);
-      // Convert back to YIQ Q = chroma * sin (hue);
-      I = chroma * cos (hue);
-      // Convert back to RGB
-      highp vec4 yIQ = vec4 (YPrime, I, Q, 0.0);
-      color.r = dot (yIQ, kYIQToR);
-      color.g = dot (yIQ, kYIQToG);
-      color.b = dot (yIQ, kYIQToB);
-      // Save the result
+      // 计算每个宫格的宽度和高度
+      float gridWidth = 1.0 / cols;
+      float gridHeight = 1.0 / rows;
+
+      // 计算当前宫格的左上角和右下角坐标
+      vec2 topLeft = vec2(grid.x * gridWidth, grid.y * gridHeight);
+      vec2 bottomRight = vec2(topLeft.x + gridWidth, topLeft.y + gridHeight);
+
+      // 根据当前宫格的坐标范围，调整纹理坐标
+      vec2 adjustedTexCoord = clamp(v_texCoord - topLeft, 0.0, 1.0) / vec2(gridWidth, gridHeight);
+
+      // 采样视频纹理中的颜色
+      vec4 color = texture2D(u_Sampler, adjustedTexCoord);
+
+      // 输出颜色
       gl_FragColor = color;
     }  
 `
+
 let video: HTMLVideoElement
-let gl:any = null
 const play = () => {
     video.play();
 }
 const pause = () => {
   video.pause();
 }
-const change = () => {
-  const u_Hue = gl.getUniformLocation(gl.program, 'u_Hue');
-  gl.uniform1f(u_Hue, state.hue); // 设置色调值为0.5
-  gl.clear(gl.COLOR_BUFFER_BIT);
-  gl.drawArrays(gl.TRIANGLES, 0, 6);
-}
+
+// crop 裁剪参数，x0 -> x1 表示从x位置的0.2才是裁到0.8结束
+// y0 -> y1 表示从y轴的0.1开始到0.5结束 0.1 -> 0.6
+// 默认不裁剪为 {x0: 0, x1: 1, y0:0, y1:1}
+const crop = {x0: 0.2, x1: 0.8, y0: 0.1, y1: 0.6}
 onMounted(() => {
    const canvas: any = document.getElementById('webgl');
-   canvas.width = 360;
-   canvas.height = 640;
-   gl = canvas.getContext('webgl');
+   canvas.width = 720;
+   canvas.height = 1280;
+   const gl = canvas.getContext('webgl');
 
    initShaders(gl, vertexShaderSource, fragmentShaderSource);
    // 给画布填充色
@@ -129,27 +115,22 @@ onMounted(() => {
    gl.activeTexture(gl.TEXTURE0);
    const texture = gl.createTexture();
    gl.bindTexture(gl.TEXTURE_2D, texture);
+   gl.generateMipmap(gl.TEXTURE_2D);
    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
  
    /* 获取uniform变量 */
    const u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
    gl.uniform1i(u_Sampler, 0);
-
-   const u_Hue = gl.getUniformLocation(gl.program, 'u_Hue');
-   gl.uniform1f(u_Hue, state.hue); // 设置色调值为0.5
-
-
    /* 建立video对象 */
-  video = document.createElement('video')
-   video.src = 'https://creative-alloss.getmogic.com/TEST/process/20230811/vc-upload-1691720455453-33_mute.mp4';
+   video = document.createElement('video')
+   video.src = '/video/output.mp4';
    video.autoplay = false;
    video.loop = false;
    video.setAttribute("crossOrigin", 'Anonymous');
-
  
    const render = () => {
      gl.texImage2D(
@@ -178,31 +159,3 @@ onMounted(() => {
    })
 })
 </script>
-
-<style lang="css">
-h3 {
-  text-align: center;
-}
-.main{
-  display: flex;
-  width: 1200px;
-  margin: 20px auto;
-}
-.flex{
-  margin-left: 30px;
-  width: 400px;
-}
-.item{
-  display: flex;
-  width: 420px;
-  align-items: center;
-}
-.item .text{
-  float: left;
-  margin-right: 20px;
-}
-.item .ant-slider {
-  width: 350px;
-  float: left;
-}
-</style>
