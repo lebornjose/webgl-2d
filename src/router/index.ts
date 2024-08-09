@@ -13,6 +13,7 @@ import Transition from '../view/transition.vue'
 import InAnimation from '../view/in_animation.vue'
 import WebAv from '../view/web_av.vue'
 import Effect from '../view/effect.vue'
+import Clip from '../view/clip.vue'
 
 const routes = [
     {
@@ -83,6 +84,11 @@ const routes = [
       path: '/effect',
       name: 'effect',
       component: Effect
+    },
+    {
+      path: '/clip',
+      name: 'clip',
+      component: Clip
     }
 ]
 
