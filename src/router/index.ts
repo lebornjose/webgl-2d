@@ -11,10 +11,10 @@ import CirMask from '../view/cir_mask.vue'
 import FiveMask from '../view/five_mask.vue'
 import Transition from '../view/transition.vue'
 import InAnimation from '../view/in_animation.vue'
-import WebAv from '../view/web_av.vue'
 import Effect from '../view/effect.vue'
 import Clip from '../view/clip.vue'
-
+import WebAv from '../view/web_av.vue'
+import WebAvFrame from '../view/web_av_frame.vue'
 const routes = [
     {
         path: '/',
@@ -89,6 +89,11 @@ const routes = [
       path: '/clip',
       name: 'clip',
       component: Clip
+    },
+    {
+      path: '/web_av_frame',
+      name: 'webAvFrame',
+      component: WebAvFrame
     }
 ]
 
