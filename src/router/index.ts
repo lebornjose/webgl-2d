@@ -15,6 +15,7 @@ import Effect from '../view/effect.vue'
 import Clip from '../view/clip.vue'
 import WebAv from '../view/web_av.vue'
 import WebAvFrame from '../view/web_av_frame.vue'
+import WebAvSpilt from '../view/webav_videoSpilt.vue'
 const routes = [
     {
         path: '/',
@@ -94,6 +95,11 @@ const routes = [
       path: '/web_av_frame',
       name: 'webAvFrame',
       component: WebAvFrame
+    },
+    {
+      path: '/web_av_spilt',
+      name: 'webAvSpilt',
+      component: WebAvSpilt
     }
 ]
 
