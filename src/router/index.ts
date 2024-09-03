@@ -16,10 +16,16 @@ import Clip from '../view/clip.vue'
 import WebAv from '../view/web_av.vue'
 import WebAvFrame from '../view/web_av_frame.vue'
 import WebAvSpilt from '../view/webav_videoSpilt.vue'
+import Index from '../view/index.vue'
 const routes = [
     {
         path: '/',
-        redirect: '/matrix'
+        redirect: '/index'
+    },
+    {
+      path: '/index',
+      name: 'index',
+      component: Index
     },
     {
       path: '/matrix',
