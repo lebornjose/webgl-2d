@@ -21,6 +21,7 @@
             <a-button type="primary" @click="toUrl('clip')">视频关键帧</a-button>
             <a-button type="primary" @click="toUrl('webAvFrame')">解码帧序列图</a-button>
             <a-button type="primary" @click="toUrl('webAvSpilt')">音画分离</a-button>
+            <a-button type="primary" @click="toUrl('webAvVideoAudio')">画面音频合成</a-button>
         </div>
       </div>
    </div>
