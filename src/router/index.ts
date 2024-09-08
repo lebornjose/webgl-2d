@@ -17,6 +17,7 @@ import WebAv from '../view/web_av.vue'
 import WebAvFrame from '../view/web_av_frame.vue'
 import WebAvSpilt from '../view/webav_videoSpilt.vue'
 import Index from '../view/index.vue'
+import WebAvVideoAudio from '../view/webav_video_audio.vue'
 const routes = [
     {
         path: '/',
@@ -106,6 +107,11 @@ const routes = [
       path: '/web_av_spilt',
       name: 'webAvSpilt',
       component: WebAvSpilt
+    },
+    {
+      path: '/veb_av_video_audio',
+      name: 'webAvVideoAudio',
+      component: WebAvVideoAudio
     }
 ]
 
