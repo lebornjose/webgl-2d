@@ -3,15 +3,18 @@
    <div class="content">
       <h2>使用webAV 实现视频录制canvas视频</h2>
       <div class="list">
+         <a-button type="primary" @click="addVideo">添加视频</a-button>
          <a-button type="primary" @click="start">开始录制</a-button>
          <a-button type="primary" @click="stop">暂停录制</a-button>
+
+          
       </div>
       <canvas></canvas>
       <div
         ref="initCvs"
         class="video-container"
       >
-         <video src="/public/video/output.mp4" ref="videoRef" muted loop autoplay/>
+         <!-- <video src="/public/video/output.mp4" ref="videoRef" muted loop autoplay/> -->
       </div>
    </div>
 </template>
@@ -24,6 +27,7 @@ import { AVRecorder } from '@webav/av-recorder';
 import {
   MediaStreamClip,
   VisibleSprite,
+  createEl,
 } from '@webav/av-cliper';
 import { onMounted } from 'vue';
 const initCvs = ref()
@@ -31,6 +35,13 @@ const videoRef = ref()
 let avCvs = null
 let recorder = null
 const loading = ref(false) // 录制中
+
+const loadFile = async (accept) => {
+   const [fileHandle] = await window.showOpenFilePicker({
+    types: [{ accept }],
+  });
+  return (await fileHandle.getFile());
+}
 const start = async() => {
    if (avCvs == null) return;
    loading.value = true
@@ -41,6 +52,7 @@ const start = async() => {
   recorder = new AVRecorder(avCvs.captureStream(), {
     bitrate: 5e6,
   });
+  console.log('writer', writer)
   recorder.start().pipeTo(writer).catch(console.error);
 }
 
@@ -49,16 +61,26 @@ const stop = async() => {
    await recorder?.stop();
    message.success('录制完成')
 }
+
+const addVideo = async () => {
+   const videoEl = createEl('video');
+   videoEl.src = '/public/video/output.mp4'
+   videoEl.loop = true;
+   videoEl.autoplay = true;
+   videoEl.width = 240
+   await videoEl.play();
+   const spr = new VisibleSprite(
+      // @ts-ignore
+      new MediaStreamClip(videoEl.captureStream()),
+   );
+   await avCvs.addSprite(spr);
+}
 onMounted(async() => {
    avCvs = new AVCanvas(initCvs.value, {
     bgColor: '#333',
     width: 1920,
     height: 1080,
   });
-  const spr = new VisibleSprite(
-      new MediaStreamClip(videoRef.value.captureStream()),
-   );
-   await avCvs.addSprite(spr);
 })
 </script>
 
