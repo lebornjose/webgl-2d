@@ -23,6 +23,7 @@
             <a-button type="primary" @click="toUrl('webAvSpilt')">音画分离</a-button>
             <a-button type="primary" @click="toUrl('webAvVideoAudio')">画面音频合成</a-button>
             <a-button type="primary" @click="toUrl('webAvCanvasRecord')">canvas录制</a-button>
+            <a-button type="primary" @click="toUrl('webAvCanvasCamera')">摄像头录制</a-button>
         </div>
       </div>
    </div>
