@@ -3,7 +3,7 @@
    <div class="content">
       <h2>canvas 导出为视频</h2>
       <div class="list">
-
+        <a-button @click="start">启动</a-button>
       </div>
       <canvas></canvas>
       <div
@@ -15,6 +15,11 @@
    </div>
 </template>
 
+<script lang="ts" setup>
+    const start = () => {
+        console.log('start')
+    }
+</script>
 <style lang="css" scoped>
 .content{
     width: 800px;
