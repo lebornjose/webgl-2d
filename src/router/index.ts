@@ -19,6 +19,7 @@ import WebAvSpilt from '../view/webav_videoSpilt.vue'
 import Index from '../view/index.vue'
 import WebAvVideoAudio from '../view/webav_video_audio.vue'
 import WebAvCanvasAudio from '../view/web_av_canvas_record.vue'
+import WebAvCanvasCamera from '../view/web_av_canvas_camera.vue'
 const routes = [
     {
         path: '/',
@@ -118,6 +119,11 @@ const routes = [
       path: '/web_av_canvas_record',
       name: 'webAvCanvasRecord',
       component: WebAvCanvasAudio
+    },
+    {
+      path: '/web_av_canvas_camera',
+      name: "webAvCanvasCamera",
+      component: WebAvCanvasCamera
     }
 ]
 
