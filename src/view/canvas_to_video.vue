@@ -5,8 +5,6 @@
       <div class="list">
         <a-button @click="start">启动</a-button>
       </div>
-      
-
       <video
         v-if="videoSrc"
         :src="videoSrc"
@@ -38,7 +36,6 @@ const start = async() => {
     const spr = new OffscreenSprite(new CountdownClip(5));
     const com = new Combinator({ width: WIDTH, height: HEIGHT });
     await com.addSprite(spr, { main: true });
-   
     await build(com)
 }
 </script>
