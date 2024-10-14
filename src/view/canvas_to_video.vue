@@ -41,7 +41,7 @@ const start = async() => {
 </script>
 <style lang="css" scoped>
 .content{
-    width: 800px;
-    margin: 40px auto;
+  width: 800px;
+  margin: 40px auto;
 }
 </style>

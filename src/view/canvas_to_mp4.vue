@@ -2,11 +2,24 @@
 <template>
 <div class="content">
     <h2>canvas 导出为视频</h2>      
-    <canvas id="webgl"></canvas>
-    <div class="flex">
-        <button @click="play">播放</button>
-        <button @click="pause">暂停</button>
+    <div class="video-list">
+      <canvas id="webgl"></canvas>
+      <video
+        class="videoCon"
+        v-if="videoSrc"
+        :src="videoSrc"
+        controls
+        autoPlay
+      ></video>
     </div>
+  
+    <div class="flex">
+        <a-button type="primary" @click="play">播放</a-button>
+        <a-button type="primary" @click="pause">暂停</a-button>
+        <a-button type="primary" @click="generate">合成</a-button>
+    </div>
+    
+
 </div>
 </template>
 
@@ -14,9 +27,13 @@
 
 import { onMounted, ref } from 'vue';
 import { initShaders } from '../utils/utils'
+import {  OffscreenSprite, Combinator } from '@webav/av-cliper';
+import CountdownClip from './canvasToMp4/mp4Util'
 
 let gl:any = null  
 let video: HTMLVideoElement
+
+const videoSrc = ref(null)
 
 const vertexShaderSource = `
     attribute vec2 a_Position;
@@ -112,11 +129,37 @@ const pause = () => {
   video.pause();
 }
 
+const build = async (com) => {
+  const timeStart = performance.now();
+  const srcBlob = await new Response(com?.output()).blob();
+  console.log(URL.createObjectURL(srcBlob))
+  const url = URL.createObjectURL(srcBlob)
+  videoSrc.value = url
+  console.log(`合成耗时: ${Math.round(performance.now() - timeStart)}ms`);
+}
+const generate = async () => {
+  let el = document.createElement('canvas')
+  el.width = 720
+  el.height = 1280
+  // const ctx = el.getContext('2d')
+  const dom = document.getElementById('webgl')
+  // const dataUrl = dom?.toDataURL('image/png')
+  // const img = document.createElement('img')
+  // img.src = dataUrl
+  // // document.append(el)
+  // document.body.append(img)
+    const spr = new OffscreenSprite(new CountdownClip(dom, 5));
+    const com = new Combinator({ width: 720, height: 1280 });
+    await com.addSprite(spr, { main: true });
+    play()
+    await build(com)
+}
+
 onMounted(() => {
    const canvas: any = document.getElementById('webgl');
    canvas.width = 360;
    canvas.height = 640;
-   gl = canvas.getContext('webgl');
+   gl = canvas.getContext('webgl', {preserveDrawingBuffer: true});
 
    initShaders(gl, vertexShaderSource, fragmentShaderSource);
    // 给画布填充色
@@ -175,6 +218,8 @@ onMounted(() => {
    video.src = '/video/output.mp4';
    video.autoplay = false;
    video.loop = false;
+   video.width = 720
+   video.height = 1280
    video.setAttribute("crossOrigin", 'Anonymous');
    video.addEventListener('loadeddata', function (e) {
       video.currentTime = 0;
@@ -192,5 +237,21 @@ onMounted(() => {
 .content{
     width: 800px;
     margin: 40px auto;
+}
+
+.video-list{
+  display: flex;
+  gap: 12px;
+}
+.videoCon{
+  width: 360px;
+  height: 640px;
+}
+
+.flex{
+  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+  margin-left: 0;
 }
 </style>

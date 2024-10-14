@@ -11,6 +11,7 @@ class CountdownClip implements IClip {
   
     constructor(duration: number) {
       this.#duration = duration;
+      debugger
       this.#cvsEl = document.createElement('canvas');
       this.#cvsEl.width = WIDTH;
       this.#cvsEl.height = HEIGHT;
