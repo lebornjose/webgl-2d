@@ -21,6 +21,7 @@ import WebAvVideoAudio from '../view/webav_video_audio.vue'
 import WebAvCanvasAudio from '../view/web_av_canvas_record.vue'
 import WebAvCanvasCamera from '../view/web_av_canvas_camera.vue'
 import CanvasToVideo from '../view/canvas_to_video.vue'
+import CanvasToMp4 from '../view/canvas_to_mp4.vue'
 const routes = [
     {
         path: '/',
@@ -130,6 +131,11 @@ const routes = [
       path: '/canvas_video_audio',
       name: 'canvasToVideo',
       component: CanvasToVideo
+    },
+    {
+      path: '/canvas_to_mp4',
+      name: 'canvasToMp4',
+      component: CanvasToMp4
     }
 ]
 
