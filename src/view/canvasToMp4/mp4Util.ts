@@ -36,16 +36,16 @@ class CountdownClip implements IClip {
     }> {
       if (time > 1e6 * 10) return { state: 'done' };
       
-      console.log(canvasEl.currentTime)
-      console.log(canvasEl.width)
-      console.log(canvasEl.height)
+      // console.log(canvasEl.currentTime)
+      // console.log(canvasEl.width)
+      // console.log(canvasEl.height)
       this.#ctx.drawImage(canvasEl, 0, 0);
-      const c = document.createElement('canvas')
-      c.width = 720
-      c.height = 1280
-      const cc = c.getContext('2d')
-      cc?.drawImage(canvasEl, 0,0)
-      document.body.append(c)
+      // const c = document.createElement('canvas')
+      // c.width = 720
+      // c.height = 1280
+      // const cc = c.getContext('2d')
+      // cc?.drawImage(canvasEl, 0,0)
+      // document.body.append(c)
       // console.log('data', this.#ctx.getImageData(0, 0, WIDTH, HEIGHT))
     //   this.#ctx.fillStyle = '#333';
     //   this.#ctx.fillRect(0, 0, this.#cvsEl.width, this.#cvsEl.height);
@@ -58,7 +58,7 @@ class CountdownClip implements IClip {
     //     this.#cvsEl.width / 2 - 100,
     //     this.#cvsEl.height / 2,
     //   );
-  
+      console.log('time', time)
       return {
         state: 'success',
         video: new VideoFrame(this.#cvsEl, {

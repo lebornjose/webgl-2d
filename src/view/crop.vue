@@ -119,7 +119,7 @@ onMounted(() => {
    gl.uniform1i(u_Sampler, 0);
    /* 建立video对象 */
    video = document.createElement('video')
-   video.src = '/video/output.mp4';
+   video.src = '/video/test1.mp4';
    video.autoplay = false;
    video.loop = false;
    video.setAttribute("crossOrigin", 'Anonymous');

@@ -17,6 +17,7 @@ import { ref, onMounted } from 'vue';
 import { MP4Clip } from '@webav/av-cliper';
 
 
+// /video/test1.mp4 // 这个视频的色彩空间是， bt2020 使用截帧出出现偏亮或者偏暗的问题
 const videos = {
     'output': '/video/output.mp4'
 }

@@ -27,14 +27,26 @@
             <a-button type="primary" @click="toUrl('canvasToVideo')">canvas 导出为视频</a-button>
             <a-button type="primary" @click="toUrl('canvasToMp4')">canvas导出为视频1</a-button>
         </div>
+
+        <video ref="videoRef" class="v" src="https://mogic-creative.oss-cn-hangzhou.aliyuncs.com/algorithm_qn/process/20241014/1040g00g318j0t73hjk004a5e4kih2s3nm3jst6g_mute.mp4" controls/>
+        <canvas width="360" height="720"  ref="canvasRef" />
+
+        <a-button @click="start">绘制</a-button>
       </div>
    </div>
 </template>
 <script type="ts" setup>
+import { ref } from 'vue'
 import { router } from '../router';
 
+const canvasRef = ref(null)
+const videoRef = ref(null)
 const toUrl = (name) => {
     router.push({ name })
+}
+const start = () => {
+    const ctx = canvasRef.value.getContext('2d')
+    ctx.drawImage(videoRef.value, 0, 0, 360, 720)
 }
 </script>
 <style lang="css" scoped>
@@ -49,5 +61,9 @@ const toUrl = (name) => {
 .container .list{
     display: flex;
     gap: 8px;
+}
+.v{
+    width: 360px;
+    height: 720px;
 }
 </style>

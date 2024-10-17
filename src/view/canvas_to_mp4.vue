@@ -3,7 +3,7 @@
 <div class="content">
     <h2>canvas 导出为视频</h2>      
     <div class="video-list">
-      <canvas id="webgl"></canvas>
+      <canvas ref="canvasRef" id="webgl"></canvas>
       <video
         class="videoCon"
         v-if="videoSrc"
@@ -34,6 +34,7 @@ let gl:any = null
 let video: HTMLVideoElement
 
 const videoSrc = ref(null)
+const canvasRef = ref(null)
 
 const vertexShaderSource = `
     attribute vec2 a_Position;
@@ -105,21 +106,32 @@ const play = () => {
   state.value = 1;
   let startTime = performance.now();
   video.play();
+  const c = document.createElement('canvas')
+  c.width = 360
+  c.height = 640
   const start = () => {
-        requestAnimationFrame(() => {
-            if(state.value) {
-                let time = performance.now()
-                currentTime.value = (time - startTime) / 1000
-                if(currentTime.value < 1 ) {
-                    const progress = gl.getUniformLocation(gl.program, 'progress');
-                    // console.log(currentTime.value)
-                    let rate = currentTime.value
-                    let p = rate > 1 ? 1 : rate
-                    gl.uniform1f(progress, p);
+    requestAnimationFrame(() => {
+        if(state.value) {
+            let time = performance.now()
+            currentTime.value = (time - startTime) / 1000
+            if(currentTime.value < 1 ) {
+                const progress = gl.getUniformLocation(gl.program, 'progress');
+                let rate = currentTime.value
+                let p = rate > 1 ? 1 : rate
+                gl.uniform1f(progress, p);
+
+                const cc = c.getContext('2d')
+                if(canvasRef.value) {
+                  cc?.drawImage(canvasRef.value, 0, 0,)
+                  const url = c.toDataURL('image/png')
+                  const img = document.createElement('img')
+                  img.src = url
+                  document.body.append(img)
                 }
-                start()
-                render()
             }
+            start()
+            render()
+        }
     })
    }
    start()
@@ -132,27 +144,26 @@ const pause = () => {
 const build = async (com) => {
   const timeStart = performance.now();
   const srcBlob = await new Response(com?.output()).blob();
-  console.log(URL.createObjectURL(srcBlob))
   const url = URL.createObjectURL(srcBlob)
   videoSrc.value = url
   console.log(`合成耗时: ${Math.round(performance.now() - timeStart)}ms`);
 }
 const generate = async () => {
-  let el = document.createElement('canvas')
-  el.width = 720
-  el.height = 1280
+  // let el = document.createElement('canvas')
+  // el.width = 360
+  // el.height = 640
   // const ctx = el.getContext('2d')
+  play()
   const dom = document.getElementById('webgl')
   // const dataUrl = dom?.toDataURL('image/png')
   // const img = document.createElement('img')
   // img.src = dataUrl
   // // document.append(el)
   // document.body.append(img)
-    const spr = new OffscreenSprite(new CountdownClip(dom, 5));
-    const com = new Combinator({ width: 720, height: 1280 });
-    await com.addSprite(spr, { main: true });
-    play()
-    await build(com)
+  const spr = new OffscreenSprite(new CountdownClip(dom, 10));
+  const com = new Combinator({ width: 360, height: 640 });
+  await com.addSprite(spr, { main: true });
+  await build(com)
 }
 
 onMounted(() => {
