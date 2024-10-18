@@ -1,34 +1,20 @@
-
 <template>
-<div class="content">
-    <h2>canvas 导出为视频</h2>      
-    <div class="video-list">
-      <canvas ref="canvasRef" id="webgl"></canvas>
-      <video
-        class="videoCon"
-        v-if="videoSrc"
-        :src="videoSrc"
-        controls
-        autoPlay
-      ></video>
-    </div>
-  
-    <div class="flex">
-        <a-button type="primary" @click="play">播放</a-button>
-        <a-button type="primary" @click="pause">暂停</a-button>
-        <a-button type="primary" @click="generate">合成</a-button>
-    </div>
-    
-
-</div>
+    <div class="content">
+        <h2>canvas 导出为视频</h2>      
+        <div class="video-list">
+            <canvas ref="canvasRef" id="webgl"></canvas>
+        </div>    
+        <div class="flex">
+            <a-button type="primary" @click="play">播放</a-button>
+            <a-button type="primary" @click="pause">暂停</a-button>
+            <a-button type="primary" @click="generate">合成</a-button>
+        </div>
+    </div>    
 </template>
-
 <script lang="ts" setup>
-
+import { recodemux, file2stream, MP4Clip} from '@webav/av-cliper'
 import { onMounted, ref } from 'vue';
 import { initShaders } from '../utils/utils'
-import {  OffscreenSprite, Combinator } from '@webav/av-cliper';
-import CountdownClip from './canvasToMp4/mp4Util'
 
 let gl:any = null  
 let video: HTMLVideoElement
@@ -85,7 +71,6 @@ const fragmentShaderSource = `
 const state = ref(0) // 0 暂停， 1 播放状态
 const currentTime = ref(0);
 
-
 const render = () => {
     gl.texImage2D(
        gl.TEXTURE_2D,
@@ -119,15 +104,6 @@ const play = () => {
                 let rate = currentTime.value
                 let p = rate > 1 ? 1 : rate
                 gl.uniform1f(progress, p);
-
-                // const cc = c.getContext('2d')
-                // if(canvasRef.value) {
-                //   cc?.drawImage(canvasRef.value, 0, 0,)
-                //   const url = c.toDataURL('image/png')
-                //   const img = document.createElement('img')
-                //   img.src = url
-                //   document.body.append(img)
-                // }
             }
             start()
             render()
@@ -141,31 +117,63 @@ const pause = () => {
   video.pause();
 }
 
-const build = async (com) => {
-  const timeStart = performance.now();
-  debugger
-  const srcBlob = await new Response(com?.output()).blob();
-  const url = URL.createObjectURL(srcBlob)
-  videoSrc.value = url
-  console.log(`合成耗时: ${Math.round(performance.now() - timeStart)}ms`);
-}
+
 const generate = async () => {
-  // let el = document.createElement('canvas')
-  // el.width = 360
-  // el.height = 640
-  // const ctx = el.getContext('2d')
-  play()
-  const dom = document.getElementById('webgl')
-  // const dataUrl = dom?.toDataURL('image/png')
-  // const img = document.createElement('img')
-  // img.src = dataUrl
-  // // document.append(el)
-  // document.body.append(img)
-  const spr = new OffscreenSprite(new CountdownClip(dom, 10));
-  const com = new Combinator({ width: 360, height: 640 });
-  await com.addSprite(spr, { main: true });
-  await build(com)
+    const muxer = recodemux({
+        video: {
+            codec: 'avc1.4D0032', // H264
+            bitrate: 5e6,
+            width: 1280,
+            height: 720,
+            expectFPS:25
+        },
+        // 后续文章介绍如何处理音频数据
+        audio: null,
+        duration: 5000
+    })
+    let timeoffset = 0
+    let lastTime = performance.now()
+    let timer = setInterval(async() => {
+        const duration = (performance.now() - lastTime) * 1000
+        console.log('timeoffset', timeoffset)
+        muxer.encodeVideo(
+            new VideoFrame(canvasRef.value, {
+                // 这一帧画面，持续 40ms，duration 单位 μs
+                duration,
+                timestamp: timeoffset
+            })
+        )
+        // debugger
+        console.log(muxer.getEecodeQueueSize())
+        timeoffset += duration
+        if(duration >= 3e6) {
+            clearInterval(timer)
+            debugger
+
+            // const data = muxer.mp4file.boxes[131].data
+            // await muxer.flush()
+            // const mp4Blob = muxer.mp4file; // 获取编码后的 MP4 文件数据
+            // const url = URL.createObjectURL(mp4Blob);
+            // console.log(url)
+            // console.log(muxer.mp4file)
+            // debugger
+            // const clip = new MP4Clip(muxer.mp4file)
+            // await clip.ready;
+            // const { state, video } = await clip.tick(1000);
+            const { stream } = file2stream(muxer.mp4file, 1000)
+
+            // const clip = new MP4Clip(stream)
+            // await clip.ready
+            // const { state, video } = await clip.tick(1000);
+            // console.log(stream)
+            debugger
+            const srcBlob = await new Response(stream).blob();
+            console.log('url', srcBlob)
+        }
+    }, 40)
+   
 }
+
 
 onMounted(() => {
    const canvas: any = document.getElementById('webgl');
@@ -241,9 +249,7 @@ onMounted(() => {
      }, 50);
    })
 })
-
 </script>
-
 
 <style scoped>
 .content{

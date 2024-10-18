@@ -56,6 +56,7 @@ const start = async () => {
   await com.addSprite(videoSpr, { main: true });
   await com.addSprite(audioSpr);
   const timeStart = performance.now();
+  debugger
   const srcBlob = await new Response(com?.output()).blob();
 
   const url = URL.createObjectURL(srcBlob)
