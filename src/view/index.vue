@@ -26,6 +26,7 @@
             <a-button type="primary" @click="toUrl('webAvCanvasCamera')">摄像头录制</a-button>
             <a-button type="primary" @click="toUrl('canvasToVideo')">canvas 导出为视频</a-button>
             <a-button type="primary" @click="toUrl('canvasToMp4')">canvas导出为视频1</a-button>
+            <a-button type="primary" @click="toUrl('canvasMp4')">canvas导出为视频2</a-button>
         </div>
 
         <video ref="videoRef" class="v" src="https://mogic-creative.oss-cn-hangzhou.aliyuncs.com/algorithm_qn/process/20241014/1040g00g318j0t73hjk004a5e4kih2s3nm3jst6g_mute.mp4" controls/>
