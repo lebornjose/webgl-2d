@@ -29,7 +29,9 @@ class CountdownClip implements IClip {
       this.#ctx = this.#cvsEl.getContext('2d')!;
       // this.#ctx.drawImage(canvasEl, WIDTH, HEIGHT);
     }
-  
+    // TODO 这个场景不适用canvas的录制，因为tick 是根据  requestAnimationFrame 触发的，
+    // 无法根据canvas 变动去，可以用来实现一个canvas 的动画
+    // 适应于需要将 canvas 内容（比如 动画）快速保存为视频文件的场景。
     async tick(time: number): Promise<{
       video?: VideoFrame;
       state: 'success' | 'done';
