@@ -24,9 +24,26 @@
             <a-button type="primary" @click="toUrl('webAvVideoAudio')">画面音频合成</a-button>
             <a-button type="primary" @click="toUrl('webAvCanvasRecord')">canvas录制</a-button>
             <a-button type="primary" @click="toUrl('webAvCanvasCamera')">摄像头录制</a-button>
-            <a-button type="primary" @click="toUrl('canvasToVideo')">canvas 导出为视频</a-button>
-            <a-button type="primary" @click="toUrl('canvasToMp4')">canvas导出为视频1</a-button>
-            <a-button type="primary" @click="toUrl('canvasMp4')">canvas导出为视频2</a-button>
+            <a-dropdown placement="bottom">
+                <a-button type="primary">canvas 导出为视频</a-button>
+                <template #overlay>
+                    <a-menu>
+                        <a-menu-item>
+                            <a href="javascript:;" @click="toUrl('canvasToVideo')">canvas 导出为视频</a>
+                        </a-menu-item>
+                        <a-menu-item>
+                            <a href="javascript:;" @click="toUrl('canvasToMp4')">canvas 导出为视频1</a>
+                        </a-menu-item>
+                        <a-menu-item>
+                            <a href="javascript:;" @click="toUrl('canvasMp4')">canvas 导出为视频2</a>
+                        </a-menu-item>
+                        <a-menu-item>
+                            <a href="javascript:;" @click="toUrl('canvas2Mp4')">canvas 导出为视频3</a>
+                        </a-menu-item>
+                    </a-menu>
+                   
+                </template>
+            </a-dropdown>
         </div>
 
         <video ref="videoRef" class="v" src="https://mogic-creative.oss-cn-hangzhou.aliyuncs.com/algorithm_qn/process/20241014/1040g00g318j0t73hjk004a5e4kih2s3nm3jst6g_mute.mp4" controls/>
