@@ -122,7 +122,7 @@ const generate = async () => {
     const muxer = recodemux({
         video: {
             codec: 'avc1.4D0032', // H264
-            bitrate: 5e6,
+            bitrate: 4e6,
             width: 1280,
             height: 720,
             expectFPS:25
@@ -160,7 +160,7 @@ const generate = async () => {
             // const clip = new MP4Clip(muxer.mp4file)
             // await clip.ready;
             // const { state, video } = await clip.tick(1000);
-            const { stream } = file2stream(muxer.mp4file, 1000)
+            // const { stream } = file2stream(muxer.mp4file, 1000)
 
             // const clip = new MP4Clip(stream)
             // await clip.ready
