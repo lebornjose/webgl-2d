@@ -10,7 +10,7 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { initShaders } from '../utils/utils'
+import { initShaders } from '../../utils/utils'
 
 
 let gl:any = null  

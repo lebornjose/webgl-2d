@@ -9,7 +9,7 @@
 
 <script lang="ts" setup>
 import { onMounted } from 'vue';
-import { initShaders } from '../utils/utils'
+import { initShaders } from '../../utils/utils'
 
 const vertexShaderSource = `
     attribute vec2 a_Position;

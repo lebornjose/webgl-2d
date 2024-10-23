@@ -1,5 +1,5 @@
 <template>
-    <div>使用二维场景的平移, 缩放，旋转</div>
+    <div>使用webgl 实现视频的裁剪功能</div>
     <canvas id="webgl"></canvas>
     <div class="flex">
       <button @click="play">播放</button>
@@ -9,8 +9,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import TransformationMatrix from '../utils/mat3'
-import { initShaders } from '../utils/utils'
+import { initShaders } from '../../utils/utils'
 
 
 const vertexShaderSource = `
@@ -19,19 +18,37 @@ const vertexShaderSource = `
     uniform mat3 u_MvpMatrix;
     varying vec2 v_texCoord;
     void main(){
-        vec3 position = u_MvpMatrix * vec3(vec2(2.0,2.0)*a_Position-vec2(1.0, 1.0), 1.0); 
+        vec3 position = vec3(vec2(2.0,2.0)*a_Position-vec2(1.0, 1.0), 1.0); 
         gl_Position = vec4(position.xy, 0.0, 1.0);
-        v_texCoord=a_texCoord;
+        v_texCoord = vec2(a_texCoord.x, a_texCoord.y);
+        // mat2 tex_matrix = mat2(
+        //     1, 0,
+        //     0, 1);
+        // vec2 crop_textCooerd = (tex_matrix * a_texCoord).xy;    
+        // v_texCoord = crop_textCooerd;
     }
 `
 const fragmentShaderSource = `
     precision mediump float;
     uniform sampler2D u_Sampler;
+    uniform vec2 u_ClipTopLeft;
+    uniform vec2 u_ClipBottomRight;
     varying vec2 v_texCoord;
     void main(){
-        gl_FragColor=texture2D(u_Sampler,v_texCoord);
+        // 判断当前纹理坐标是否在裁剪区域内
+        bool insideClipArea = all(greaterThanEqual(v_texCoord, u_ClipTopLeft)) && all(lessThanEqual(v_texCoord, u_ClipBottomRight));
+        if (insideClipArea) {
+          // 在裁剪区域内，采样纹理并输出颜色
+          gl_FragColor = texture2D(u_Sampler, v_texCoord);
+        } else {
+          // 不在裁剪区域内，输出透明
+          gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        }
+
+        //  gl_FragColor = texture2D(u_Sampler, v_texCoord);
     }  
 `
+
 let video: HTMLVideoElement
 const play = () => {
     video.play();
@@ -39,6 +56,11 @@ const play = () => {
 const pause = () => {
   video.pause();
 }
+
+// crop 裁剪参数，x0 -> x1 表示从x位置的0.2才是裁到0.8结束
+// y0 -> y1 表示从y轴的0.1开始到0.5结束 0.1 -> 0.6
+// 默认不裁剪为 {x0: 0, x1: 1, y0:0, y1:1}
+const crop = {x0: 0.2, x1: 0.8, y0: 0.1, y1: 0.6}
 onMounted(() => {
    const canvas: any = document.getElementById('webgl');
    canvas.width = 360;
@@ -92,24 +114,17 @@ onMounted(() => {
  
    /* 获取uniform变量 */
    const u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
+   const u_ClipTopLeft = gl.getUniformLocation(gl.program, 'u_ClipTopLeft');
+   const u_ClipBottomRight = gl.getUniformLocation(gl.program, 'u_ClipBottomRight');
    gl.uniform1i(u_Sampler, 0);
-   var u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
    /* 建立video对象 */
-  video = document.createElement('video')
-   video.src = '/video/output.mp4';
+   video = document.createElement('video')
+   video.src = '/video/test1.mp4';
    video.autoplay = false;
    video.loop = false;
    video.setAttribute("crossOrigin", 'Anonymous');
-
-  let matrix = new TransformationMatrix()
-  matrix.scale(0.5, 0.5); // 缩放0.5
-
-  matrix.translate(0.5, 0); // 向右平移
-
-  matrix.rotate(15); // 旋转15
-
-  // matrix1.multiply(matrix2);
-  gl.uniformMatrix3fv(u_MvpMatrix, false, matrix.elements);
+   gl.uniform2fv(u_ClipTopLeft, [crop.x0, 1 - crop.y1]);  // 设置裁剪区域的左上角坐标 0.3 左边开始的位置， 0.5从下往上的裁剪距离
+    gl.uniform2fv(u_ClipBottomRight, [crop.x1, 1-crop.y0]); // 0.9 (1-0.9) 为从最右边往左的距离0.8(1-0.8) 从上往下的裁剪
  
    const render = () => {
      gl.texImage2D(
