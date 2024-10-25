@@ -9,6 +9,7 @@
             <a-button type="primary" @click="toUrl('in_animation')">出场动画</a-button>
             <a-button type="primary" @click="toUrl('flip')">视频翻转</a-button>
             <a-button type="primary" @click="toUrl('mask')">蒙版</a-button>
+            <a-button type="primary" @click="toUrl('filter')">滤镜</a-button>
             <a-button type="primary" @click="toUrl('cir_mask')">圆形蒙版</a-button>
             <a-button type="primary" @click="toUrl('color')">视频色值调整</a-button>
             <a-button type="primary" @click="toUrl('effect')">九宫格特效</a-button>

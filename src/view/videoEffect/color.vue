@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 import { onMounted, reactive } from 'vue';
-import { initShaders } from '../utils/utils'
+import { initShaders } from '../../utils/utils'
 
 const state = reactive({
   temperature: 5000,  // 色调
