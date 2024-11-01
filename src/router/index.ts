@@ -24,6 +24,7 @@ import CanvasToVideo from '../view/canvas_to_video.vue'
 import CanvasToMp4 from '../view/canvas_to_mp4.vue'
 import CanvasMp4 from '../view/canvas_mp4.vue'
 import Canvas2Mp4 from '../view/canvas_to2_mp4.vue'
+import GreenScreen from '../view/webAv/greenScreen.vue'
 const routes = [
     {
         path: '/',
@@ -148,6 +149,11 @@ const routes = [
       path: '/canvas_2_mp4',
       name: 'canvas2Mp4',
       component: Canvas2Mp4
+    },
+    {
+      path: '/green_screen',
+      name:  'greenScreen',
+      component: GreenScreen
     }
 ]
 

@@ -45,6 +45,7 @@
                    
                 </template>
             </a-dropdown>
+            <a-button type="primary" @click="toUrl('greenScreen')">绿幕抠图</a-button>
         </div>
 
         <video ref="videoRef" class="v" src="https://mogic-creative.oss-cn-hangzhou.aliyuncs.com/algorithm_qn/process/20241014/1040g00g318j0t73hjk004a5e4kih2s3nm3jst6g_mute.mp4" controls/>
