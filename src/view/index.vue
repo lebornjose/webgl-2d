@@ -52,6 +52,7 @@
         <canvas width="360" height="720"  ref="canvasRef" />
 
         <a-button @click="start">绘制</a-button>
+        <video src="https://mogic-algo-data.getmogic.com/yuxiaopu/font/gittest.mp4" controls autoplay loop></video>
       </div>
    </div>
 </template>
