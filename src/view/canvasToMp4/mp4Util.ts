@@ -36,6 +36,7 @@ class CountdownClip implements IClip {
       video?: VideoFrame;
       state: 'success' | 'done';
     }> {
+      console.log('time', time)
       if (time > 1e6 * 10) return { state: 'done' };
       
       // console.log(canvasEl.currentTime)
