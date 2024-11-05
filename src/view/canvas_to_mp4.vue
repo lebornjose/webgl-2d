@@ -143,7 +143,6 @@ const pause = () => {
 
 const build = async (com) => {
   const timeStart = performance.now();
-  debugger
   const srcBlob = await new Response(com?.output()).blob();
   const url = URL.createObjectURL(srcBlob)
   videoSrc.value = url
