@@ -25,6 +25,8 @@ import CanvasToMp4 from '../view/canvas_to_mp4.vue'
 import CanvasMp4 from '../view/canvas_mp4.vue'
 import Canvas2Mp4 from '../view/canvas_to2_mp4.vue'
 import GreenScreen from '../view/webAv/greenScreen.vue'
+import CanvasRecord from '../view/canvasToMp4/canvas_record.vue'
+import WebRtc from '../view/webRtc/index.vue'
 const routes = [
     {
         path: '/',
@@ -154,6 +156,16 @@ const routes = [
       path: '/green_screen',
       name:  'greenScreen',
       component: GreenScreen
+    },
+    {
+      path: '/canvas_record',
+      name: 'canvasRecord',
+      component: CanvasRecord
+    },
+    {
+      path: '/web_rtc',
+      name: 'webRtc',
+      component: WebRtc
     }
 ]
 
