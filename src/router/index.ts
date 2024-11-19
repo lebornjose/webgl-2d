@@ -27,6 +27,7 @@ import Canvas2Mp4 from '../view/canvas_to2_mp4.vue'
 import GreenScreen from '../view/webAv/greenScreen.vue'
 import CanvasRecord from '../view/canvasToMp4/canvas_record.vue'
 import WebRtc from '../view/webRtc/index.vue'
+import Room from '../view/webRtc/Room.vue'
 const routes = [
     {
         path: '/',
@@ -166,6 +167,11 @@ const routes = [
       path: '/web_rtc',
       name: 'webRtc',
       component: WebRtc
+    },
+    {
+      path: '/webrtc_room',
+      name: 'room',
+      component: Room
     }
 ]
 
