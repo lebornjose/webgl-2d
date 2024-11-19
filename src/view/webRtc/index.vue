@@ -1,12 +1,20 @@
 <template>
     <div class="web-rtc">
         <div class="web-rtc-video"> 
-            <p> 我的本地视频：</p>
-            <video ref="localVideo" autoplay muted></video>
+            <div class="web-rtc-video-btn">
+              <a-button type="primary" @click="createVideo">创建视频</a-button>
+              <a-button type="primary" @click="receiveVideo">接收视频</a-button>
+              <a-button type="primary" v-if="type === 0" >结束</a-button>
+            </div>
+            <div v-if="type === 0">
+              <p> 我的本地视频：</p>
+              <video ref="localVideo" autoplay muted></video>
+            </div>
              
-            <p>远程连接拿到我的本地视频</p>
-
-            <video ref="remoteVideo" autoplay muted></video>
+            <div v-if="type === 1">
+              <p>远程连接拿到我的本地视频</p>
+              <video ref="remoteVideo" autoplay muted></video>
+            </div>
         </div>
     </div>
 </template>
@@ -15,6 +23,8 @@ import { onMounted, ref } from 'vue';
 const localVideo = ref(null);
 const remoteVideo = ref(null);
 let localStream = null
+
+const type = ref(null) // 0 播放端 1 录制端
 
 const createPeerConnection = async () => {
   const peerA = new RTCPeerConnection()
@@ -51,18 +61,35 @@ const createPeerConnection = async () => {
 }
 
 
+const createVideo = async () => {
+  type.value = 0
+  localStream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+  });
+  localVideo.value.srcObject = localStream;  localVideo.value.srcObject = localStream;    
+  await createPeerConnection()
+}
+
+const receiveVideo = async () => {
+  type.value = 1
+  await createPeerConnection()
+}
 
 onMounted(async() => {
     console.log(localVideo.value);
-
-    localStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
-    });
     // 显示数据源，localVideo 是 html 中的 video 标签
-    localVideo.value.srcObject = localStream;
-
-    
-    await createPeerConnection()
 })
 </script>
+
+<style scoped>
+.web-rtc-video {
+  margin: 20px auto;
+  width: 1000px;
+}
+.web-rtc-video-btn {
+  display: flex;
+  gap: 12px;
+
+}
+</style>

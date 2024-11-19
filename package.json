@@ -13,6 +13,7 @@
     "@webav/av-cliper": "^0.14.4",
     "@webav/av-recorder": "^0.16.0",
     "ant-design-vue": "4.0.0-rc.6",
+    "socket.io-client": "^4.8.1",
     "vue": "^3.3.4"
   },
   "devDependencies": {
