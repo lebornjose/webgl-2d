@@ -2,12 +2,12 @@
     <div class="m-room-wrapper">
         <div class="can-support-rtc" v-if="canSupportVideo">
             <div class="form-area" v-if="showFormArea">
-                <a-form>
+                <a-form ref="roomForm">
                     <a-form-item label="房间Id">
-                        <a-input v-model="roomForm.roomId" :disabled="!canClickBtn"/>
+                        <a-input v-model="roomForm.roomId" :disabled="!canClickBtn" />
                     </a-form-item>
                     <a-form-item label="昵称">
-                       <a-input v-model="roomForm.nickname" :disabled="!canClickBtn"/>
+                        <a-input v-model="roomForm.nickname" :disabled="!canClickBtn" />
                     </a-form-item>
                     <a-form-item>
                         <a-button type="primary" @click="submitForm" :disabled="!canClickBtn">加入房间</a-button>
@@ -27,16 +27,17 @@
                     发起视频
                 </el-button>
             </div>
-        </div>   
+        </div>
         <div v-else>
             <h1>当前域名的浏览器不支持WebRTC！</h1>
-        </div> 
+        </div>
     </div>
 </template>
 
 <script setup>
-import socket from '../../utils/socket'
-import { onMounted, ref, reactive } from 'vue'
+import { message } from 'ant-design-vue';
+import { computed, reactive, ref } from 'vue';
+import socket from '../../utils/socket';
 
 
 const sockId = ref('') // 客户端id
@@ -47,6 +48,12 @@ const roomUsers = ref([]) // 房间在线用户
 const canClickBtn = ref(true) // 是否可以点击按钮
 const peer = ref(null) // peer
 
+const user = computed(() => {
+    return Object.assign({}, { sockId: sockId.value }, roomForm);
+})
+const receiveUser = computed(() => {
+    return roomUsers.value.find(item => item.sockId !== sockId.value)
+})
 // 房间信息
 const roomForm = reactive({
     roomId: '',
@@ -55,27 +62,27 @@ const roomForm = reactive({
 
 const getDevices = async () => {
     try {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    VIDEO_VIEW.showDevicesNameByDevices(devices);
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        VIDEO_VIEW.showDevicesNameByDevices(devices);
     } catch (error) {
-    console.error(error);
-    const msg = `getDevices error: ${error.name} : ${error.message}`;
-    this.$message.error(msg);
+        console.error(error);
+        const msg = `getDevices error: ${error.name} : ${error.message}`;
+        message.error(msg);
     }
 }
 
 const canSupportWebRTC = () => {
     if (typeof navigator.mediaDevices !== 'object') {
-    this.$message.error('No navigator.mediaDevices');
-    return false;
+        message.error('No navigator.mediaDevices');
+        return false;
     }
     if (typeof navigator.mediaDevices.enumerateDevices !== 'function') {
-    this.$message.error('No navigator.mediaDevices.enumerateDevices');
-    return false;
+        message.error('No navigator.mediaDevices.enumerateDevices');
+        return false;
     }
     if (typeof navigator.mediaDevices.getUserMedia !== 'function') {
-    this.$message.error('No navigator.mediaDevices.getUserMedia');
-    return false;
+        message.error('No navigator.mediaDevices.getUserMedia');
+        return false;
     }
     canSupportVideo.value = true;
     getDevices();
@@ -88,28 +95,31 @@ const createLocalVideoStream = async () => {
 }
 const initPeerListen = () => {
     peer.value.onicecandidate = (event) => {
-        if (event.candidate) { 
-            socket.emit('addIceCandidate', { candidate: event.candidate, user: user.value }); 
+        if (event.candidate) {
+            socket.emit('addIceCandidate', { candidate: event.candidate, user: user.value });
         }
     };
     peer.value.onaddstream = (event) => {
         // 拿到对方的视频流
         document.querySelector('#echat-remote-1').srcObject = event.stream;
     };
-    this.peer.onclose = () => {};
+    this.peer.onclose = () => { };
 }
 const initSocketEvents = () => {
     // 离开页面
+    // debugger
     window.onbeforeunload = () => {
         socket.emit('userLeave', {
-            userName: this.roomForm.userName,
-            sockId: this.sockId,
-            roomId: this.roomForm.roomId,
+            userName: roomForm.userName,
+            sockId: sockId.value,
+            roomId: roomForm.roomId,
         });
     };
+    console.log('socket', socket)
     // 连接成功
-    socket.on('connectionSuccess', (sockId) => {
-        sockId.value = sockId;
+    socket.on('connectionSuccess', (id) => {
+        debugger
+        sockId.value = id;
         console.log('connectionSuccess client sockId:', sockId);
     });
     // 检查房间成功
@@ -117,61 +127,61 @@ const initSocketEvents = () => {
         debugger
         this.canClickBtn = true;
         if (exsitRoomUsers && exsitRoomUsers.length > 1) {
-          this.$message.info('当前房间人数已满~请换个房间id');
+            message.info('当前房间人数已满~请换个房间id');
         } else {
-          showFormArea.value = false;
-          roomUsers.value = [
-            {
-              userName: roomForm.userName + '(我)',
-              sockId: sockId.value,
-              roomId: roomForm.roomId,
+            showFormArea.value = false;
+            roomUsers.value = [
+                {
+                    userName: roomForm.userName + '(我)',
+                    sockId: sockId.value,
+                    roomId: roomForm.roomId,
 
-            }
-          ];
+                }
+            ];
         }
     });
     // 加入房间成功
     socket.on('joinRoomSuccess', (roomUsers) => {
         console.log('joinRoomSuccess client user:', roomUsers);
-        const otherUser = roomUsers.find(item => item.sockId !== this.sockId);
+        const otherUser = roomUsers.find(item => item.sockId !== sockId.value);
         if (!otherUser) return false;
-        this.$message.success(`${otherUser.userName}加入了房间`);
+        message.success(`${otherUser.userName}加入了房间`);
         roomUsers.value = [otherUser, {
-          userName: roomForm.userName + '(我)',
-          sockId: sockId.value,
-          roomId: roomForm.roomId,
+            userName: roomForm.userName + '(我)',
+            sockId: sockId.value,
+            roomId: roomForm.roomId,
         }];
     });
     // 用户离开
     socket.on('userLeave', (roomUsers) => {
         console.log('userLeave client user:', roomUsers);
         if (!roomUsers.value.length) {
-          showFormArea.value = true;
-          sockId.value = '';
+            showFormArea.value = true;
+            sockId.value = '';
         }
         const serverSockIdArr = roomUsers.map(item => item.sockId);
         roomUsers.value.forEach(item => {
-          if (serverSockIdArr.indexOf(item.sockId) === -1) {
-            this.$message.info(`${item.userName}离开了房间`);
-            if (item.sockId === this.sockId) {
-              showFormArea.value = true;
-              sockId.value = '';
+            if (serverSockIdArr.indexOf(item.sockId) === -1) {
+                message.info(`${item.userName}离开了房间`);
+                if (item.sockId === sockId.value) {
+                    showFormArea.value = true;
+                    sockId.value = '';
+                }
             }
-          }
         });
         roomUsers.value = roomUsers;
         roomUsers.value.forEach((item) => {
-          if (item.sockId === sockId.value) {
-            item.userName = item.userName + '(我)';
-          }
+            if (item.sockId === sockId.value) {
+                item.userName = item.userName + '(我)';
+            }
         });
         // TODO: 挂断视频
         VIDEO_VIEW.hideAllVideoModal();
     });
-     // 取消发送视频
+    // 取消发送视频
     socket.on('cancelSendVideo', (user) => {
         const infoTips = user.sockId === sockId ? '您取消了发送视频' : '对方取消了发送视频';
-        this.$message.info(infoTips);
+        message.info(infoTips);
         VIDEO_VIEW.hideAllVideoModal();
     });
     // 接收视频邀请
@@ -179,10 +189,10 @@ const initSocketEvents = () => {
         if (this.user.sockId === sender.sockId) return false;
         VIDEO_VIEW.showReceiveVideoModalBySender(sender);
     });
-     // 拒绝接收视频
+    // 拒绝接收视频
     socket.on('rejectReceiveVideo', (user) => {
         const infoTips = user.sockId === sockId.value ? '您拒绝了接收视频' : '对方拒绝了接收视频';
-        this.$message.info(infoTips);
+        message.info(infoTips);
         VIDEO_VIEW.hideAllVideoModal();
     });
     // 接听视频
@@ -194,37 +204,102 @@ const initSocketEvents = () => {
         peer.value = new RTCPeerConnection()
         console.log(peer.value)
         initPeerListen()
-        peer.value.addStream(this.localStream)
-        if (user.sockId === this.sockId) {
-          // 接收方
+        peer.value.addStream(localStream.value)
+        if (user.sockId === sockId.value) {
+            // 接收方
         } else {
-          // 发送方 创建offer
-          const offer = await peer.value.createOffer(this.offerOption);
-          await peer.value.setLocalDescription(offer);
-          socket.emit('receiveOffer', { user: this.user, offer });
+            // 发送方 创建offer
+            const offer = await peer.value.createOffer(this.offerOption);
+            await peer.value.setLocalDescription(offer);
+            socket.emit('receiveOffer', { user: user.value, offer });
         }
     });
 }
 
-onMounted(() => {
-    if(canSupportWebRTC()) {
-        initSocketEvents()
+const startVideoCancelCb = () => {
+    socket.emit('cancelSendVideo', this.user);
+    VIDEO_VIEW.hideAllVideoModal();
+}
+const receiveVideoCancelCb = () => {
+    socket.emit('rejectReceiveVideo', this.user);
+    VIDEO_VIEW.hideAllVideoModal();
+}
+const receiveVideoAnswerCb = () => {
+    socket.emit('answerVideo', user.value);
+}
+const hangUpVideoCb = () => {
+    socket.emit('hangupVideo', user.value);
+}
+const openMikeCb = () => {
+
+}
+const closeMikeCb = () => {
+
+}
+const openCammerCb = () => {
+
+}
+const closeCammerCb = () => {
+
+}
+const toScreenCb = () => {
+
+}
+
+const initVIDEO_VIEWSdk = () => {
+    const configOptios = {
+        startVideoCancelCb: startVideoCancelCb,
+        receiveVideoCancelCb: receiveVideoCancelCb,
+        receiveVideoAnswerCb: receiveVideoAnswerCb,
+        hangUpVideoCb: hangUpVideoCb,
+        openMikeCb: openMikeCb,
+        closeMikeCb: closeMikeCb,
+        openCammerCb: openCammerCb,
+        closeCammerCb: closeCammerCb,
+        toScreenCb: toScreenCb,
+    };
+    VIDEO_VIEW.configCallBack(configOptios);
+}
+
+const toSendVideo = () => {
+    socket.emit('toSendVideo', user.value);
+    VIDEO_VIEW.showStartVideoModalByReceiver(receiveUser.value);
+}
+
+const submitForm = () => {
+    if (!sockId.value) {
+        message.error('socket未连接成功,请刷新再尝试!');
+        // window.location.reload();
+        return false;
     }
-})
+    this.canClickBtn = false;
+    socket.emit('checkRoom', {
+        roomId: roomForm.roomId,
+        sockId: sockId.value,
+        userName: roomForm.nickname
+    });
+}
+if (canSupportWebRTC()) {
+    initSocketEvents()
+    initVIDEO_VIEWSdk();
+}
 </script>
 
 <style>
-.m-room-wrapper{
+.m-room-wrapper {
     width: 880px;
-    margin: 20px auto!important;
+    margin: 20px auto !important;
 }
+
 .m-room-wrapper .box-card {
     width: 480px;
 }
-.m-room-wrapper .box-card .item{
+
+.m-room-wrapper .box-card .item {
     padding: 18px 0;
 }
-.ant-form-item-control-input-content{
+
+.ant-form-item-control-input-content {
     display: flex;
     gap: 12px;
 }
