@@ -2,12 +2,12 @@
     <div class="m-room-wrapper">
         <div class="can-support-rtc" v-if="canSupportVideo">
             <div class="form-area" v-if="showFormArea">
-                <a-form ref="roomForm">
+                <a-form>
                     <a-form-item label="房间Id">
-                        <a-input v-model="roomForm.roomId" :disabled="!canClickBtn" />
+                        <a-input v-model:value="roomForm.roomId" :disabled="!canClickBtn" />
                     </a-form-item>
                     <a-form-item label="昵称">
-                        <a-input v-model="roomForm.nickname" :disabled="!canClickBtn" />
+                        <a-input v-model:value="roomForm.nickname" :disabled="!canClickBtn" />
                     </a-form-item>
                     <a-form-item>
                         <a-button type="primary" @click="submitForm" :disabled="!canClickBtn">加入房间</a-button>
@@ -122,17 +122,21 @@ const initSocketEvents = () => {
         sockId.value = id;
         console.log('connectionSuccess client sockId:', sockId);
     });
+    socket.on('connect_error', (err) => {
+        debugger
+        console.error('Connection error:', err);
+    });
     // 检查房间成功
     socket.on('checkRoomSuccess', (exsitRoomUsers) => {
+        canClickBtn.value = true;
         debugger
-        this.canClickBtn = true;
         if (exsitRoomUsers && exsitRoomUsers.length > 1) {
             message.info('当前房间人数已满~请换个房间id');
         } else {
             showFormArea.value = false;
             roomUsers.value = [
                 {
-                    userName: roomForm.userName + '(我)',
+                    userName: roomForm.nickname + '(我)',
                     sockId: sockId.value,
                     roomId: roomForm.roomId,
 
@@ -272,7 +276,8 @@ const submitForm = () => {
         // window.location.reload();
         return false;
     }
-    this.canClickBtn = false;
+    canClickBtn.value = false;
+    debugger
     socket.emit('checkRoom', {
         roomId: roomForm.roomId,
         sockId: sockId.value,

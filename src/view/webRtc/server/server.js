@@ -23,6 +23,12 @@ app.use(async (ctx, next) => {
 })
 const httpServer = http.createServer(app.callback()).listen(port, () => {
   console.log('httpServer app started at port ...' + port)
+}, {
+  cors: {
+        origin: process.env.DEV_ORIGIN, // 允许的来源
+        methods: ["GET", "POST"],
+        credentials: true
+    }
 })
 const options = {
   ioOptions: {
