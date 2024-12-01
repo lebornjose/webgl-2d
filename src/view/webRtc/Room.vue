@@ -23,9 +23,10 @@
                         {{ item.userName }}
                     </div>
                 </div>
-                <el-button type="primary" v-if="roomUsers.length > 1 && sockId" @click="toSendVideo">
+                {{ roomUsers.length }}
+                <a-button type="primary" v-if="sockId" @click="toSendVideo">
                     发起视频
-                </el-button>
+                </a-button>
             </div>
         </div>
         <div v-else>
@@ -139,22 +140,23 @@ const initSocketEvents = () => {
                     userName: roomForm.nickname + '(我)',
                     sockId: sockId.value,
                     roomId: roomForm.roomId,
-
                 }
             ];
         }
     });
     // 加入房间成功
-    socket.on('joinRoomSuccess', (roomUsers) => {
-        console.log('joinRoomSuccess client user:', roomUsers);
-        const otherUser = roomUsers.find(item => item.sockId !== sockId.value);
+    socket.on('joinRoomSuccess', (users) => {
+        debugger
+        console.log('joinRoomSuccess client user:', users);
+        const otherUser = users.find(item => item.sockId !== sockId.value);
         if (!otherUser) return false;
         message.success(`${otherUser.userName}加入了房间`);
         roomUsers.value = [otherUser, {
-            userName: roomForm.userName + '(我)',
+            userName: roomForm.nickname + '(我)',
             sockId: sockId.value,
             roomId: roomForm.roomId,
         }];
+        console.log(roomUsers.value.length)
     });
     // 用户离开
     socket.on('userLeave', (roomUsers) => {
@@ -190,7 +192,7 @@ const initSocketEvents = () => {
     });
     // 接收视频邀请
     socket.on('receiveVideo', (sender) => {
-        if (this.user.sockId === sender.sockId) return false;
+        if (user.value.sockId === sender.sockId) return false;
         VIDEO_VIEW.showReceiveVideoModalBySender(sender);
     });
     // 拒绝接收视频
@@ -221,11 +223,11 @@ const initSocketEvents = () => {
 }
 
 const startVideoCancelCb = () => {
-    socket.emit('cancelSendVideo', this.user);
+    socket.emit('cancelSendVideo', user.value);
     VIDEO_VIEW.hideAllVideoModal();
 }
 const receiveVideoCancelCb = () => {
-    socket.emit('rejectReceiveVideo', this.user);
+    socket.emit('rejectReceiveVideo', user.value);
     VIDEO_VIEW.hideAllVideoModal();
 }
 const receiveVideoAnswerCb = () => {
@@ -273,11 +275,9 @@ const toSendVideo = () => {
 const submitForm = () => {
     if (!sockId.value) {
         message.error('socket未连接成功,请刷新再尝试!');
-        // window.location.reload();
         return false;
     }
     canClickBtn.value = false;
-    debugger
     socket.emit('checkRoom', {
         roomId: roomForm.roomId,
         sockId: sockId.value,
