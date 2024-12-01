@@ -2,12 +2,12 @@
     <div class="m-room-wrapper">
         <div class="can-support-rtc" v-if="canSupportVideo">
             <div class="form-area" v-if="showFormArea">
-                <a-form ref="roomForm">
+                <a-form>
                     <a-form-item label="房间Id">
-                        <a-input v-model="roomForm.roomId" :disabled="!canClickBtn" />
+                        <a-input v-model:value="roomForm.roomId" :disabled="!canClickBtn" />
                     </a-form-item>
                     <a-form-item label="昵称">
-                        <a-input v-model="roomForm.nickname" :disabled="!canClickBtn" />
+                        <a-input v-model:value="roomForm.nickname" :disabled="!canClickBtn" />
                     </a-form-item>
                     <a-form-item>
                         <a-button type="primary" @click="submitForm" :disabled="!canClickBtn">加入房间</a-button>
@@ -23,9 +23,10 @@
                         {{ item.userName }}
                     </div>
                 </div>
-                <el-button type="primary" v-if="roomUsers.length > 1 && sockId" @click="toSendVideo">
+                {{ roomUsers.length }}
+                <a-button type="primary" v-if="sockId" @click="toSendVideo">
                     发起视频
-                </el-button>
+                </a-button>
             </div>
         </div>
         <div v-else>
@@ -122,35 +123,40 @@ const initSocketEvents = () => {
         sockId.value = id;
         console.log('connectionSuccess client sockId:', sockId);
     });
+    socket.on('connect_error', (err) => {
+        debugger
+        console.error('Connection error:', err);
+    });
     // 检查房间成功
     socket.on('checkRoomSuccess', (exsitRoomUsers) => {
+        canClickBtn.value = true;
         debugger
-        this.canClickBtn = true;
         if (exsitRoomUsers && exsitRoomUsers.length > 1) {
             message.info('当前房间人数已满~请换个房间id');
         } else {
             showFormArea.value = false;
             roomUsers.value = [
                 {
-                    userName: roomForm.userName + '(我)',
+                    userName: roomForm.nickname + '(我)',
                     sockId: sockId.value,
                     roomId: roomForm.roomId,
-
                 }
             ];
         }
     });
     // 加入房间成功
-    socket.on('joinRoomSuccess', (roomUsers) => {
-        console.log('joinRoomSuccess client user:', roomUsers);
-        const otherUser = roomUsers.find(item => item.sockId !== sockId.value);
+    socket.on('joinRoomSuccess', (users) => {
+        debugger
+        console.log('joinRoomSuccess client user:', users);
+        const otherUser = users.find(item => item.sockId !== sockId.value);
         if (!otherUser) return false;
         message.success(`${otherUser.userName}加入了房间`);
         roomUsers.value = [otherUser, {
-            userName: roomForm.userName + '(我)',
+            userName: roomForm.nickname + '(我)',
             sockId: sockId.value,
             roomId: roomForm.roomId,
         }];
+        console.log(roomUsers.value.length)
     });
     // 用户离开
     socket.on('userLeave', (roomUsers) => {
@@ -186,7 +192,7 @@ const initSocketEvents = () => {
     });
     // 接收视频邀请
     socket.on('receiveVideo', (sender) => {
-        if (this.user.sockId === sender.sockId) return false;
+        if (user.value.sockId === sender.sockId) return false;
         VIDEO_VIEW.showReceiveVideoModalBySender(sender);
     });
     // 拒绝接收视频
@@ -217,11 +223,11 @@ const initSocketEvents = () => {
 }
 
 const startVideoCancelCb = () => {
-    socket.emit('cancelSendVideo', this.user);
+    socket.emit('cancelSendVideo', user.value);
     VIDEO_VIEW.hideAllVideoModal();
 }
 const receiveVideoCancelCb = () => {
-    socket.emit('rejectReceiveVideo', this.user);
+    socket.emit('rejectReceiveVideo', user.value);
     VIDEO_VIEW.hideAllVideoModal();
 }
 const receiveVideoAnswerCb = () => {
@@ -269,10 +275,9 @@ const toSendVideo = () => {
 const submitForm = () => {
     if (!sockId.value) {
         message.error('socket未连接成功,请刷新再尝试!');
-        // window.location.reload();
         return false;
     }
-    this.canClickBtn = false;
+    canClickBtn.value = false;
     socket.emit('checkRoom', {
         roomId: roomForm.roomId,
         sockId: sockId.value,
