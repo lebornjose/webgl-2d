@@ -104,7 +104,7 @@ const initPeerListen = () => {
         // 拿到对方的视频流
         document.querySelector('#echat-remote-1').srcObject = event.stream;
     };
-    this.peer.onclose = () => { };
+    peer.value.onclose = () => { };
 }
 const initSocketEvents = () => {
     // 离开页面
