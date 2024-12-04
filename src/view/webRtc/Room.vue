@@ -49,6 +49,11 @@ const roomUsers = ref([]) // 房间在线用户
 const canClickBtn = ref(true) // 是否可以点击按钮
 const peer = ref(null) // peer
 
+const offerOption = ref({
+    offerToReceiveAudio: 1,
+    offerToReceiveVideo: 1
+})
+
 const user = computed(() => {
     return Object.assign({}, { sockId: sockId.value }, roomForm);
 })
@@ -91,24 +96,28 @@ const canSupportWebRTC = () => {
 }
 const createLocalVideoStream = async () => {
     const constraints = { audio: true, video: true };
-    const localStream = await navigator.mediaDevices.getUserMedia(constraints);
-    return localStream;
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    return stream;
 }
 const initPeerListen = () => {
+    debugger
     peer.value.onicecandidate = (event) => {
+        debugger
         if (event.candidate) {
             socket.emit('addIceCandidate', { candidate: event.candidate, user: user.value });
         }
     };
     peer.value.onaddstream = (event) => {
         // 拿到对方的视频流
+        debugger
         document.querySelector('#echat-remote-1').srcObject = event.stream;
     };
-    peer.value.onclose = () => { };
+    peer.value.onclose = () => {
+        debugger
+     };
 }
 const initSocketEvents = () => {
     // 离开页面
-    // debugger
     window.onbeforeunload = () => {
         socket.emit('userLeave', {
             userName: roomForm.userName,
@@ -119,18 +128,15 @@ const initSocketEvents = () => {
     console.log('socket', socket)
     // 连接成功
     socket.on('connectionSuccess', (id) => {
-        debugger
         sockId.value = id;
         console.log('connectionSuccess client sockId:', sockId);
     });
     socket.on('connect_error', (err) => {
-        debugger
         console.error('Connection error:', err);
     });
     // 检查房间成功
     socket.on('checkRoomSuccess', (exsitRoomUsers) => {
         canClickBtn.value = true;
-        debugger
         if (exsitRoomUsers && exsitRoomUsers.length > 1) {
             message.info('当前房间人数已满~请换个房间id');
         } else {
@@ -146,8 +152,6 @@ const initSocketEvents = () => {
     });
     // 加入房间成功
     socket.on('joinRoomSuccess', (users) => {
-        debugger
-        console.log('joinRoomSuccess client user:', users);
         const otherUser = users.find(item => item.sockId !== sockId.value);
         if (!otherUser) return false;
         message.success(`${otherUser.userName}加入了房间`);
@@ -202,20 +206,20 @@ const initSocketEvents = () => {
         VIDEO_VIEW.hideAllVideoModal();
     });
     // 接听视频
-    socket.on('answerVideo', async (user) => {
+    socket.on('answerVideo', async (info) => {
         VIDEO_VIEW.showInvideoModal();
         // 创建本地视频流信息
-        const localStream = await createLocalVideoStream();
-        localStream.value = localStream
+        const stream = await createLocalVideoStream();
+        localStream.value = stream
+        debugger
         peer.value = new RTCPeerConnection()
-        console.log(peer.value)
         initPeerListen()
         peer.value.addStream(localStream.value)
-        if (user.sockId === sockId.value) {
+        if (info.sockId === sockId.value) {
             // 接收方
         } else {
             // 发送方 创建offer
-            const offer = await peer.value.createOffer(this.offerOption);
+            const offer = await peer.value.createOffer(offerOption.value);
             await peer.value.setLocalDescription(offer);
             socket.emit('receiveOffer', { user: user.value, offer });
         }
