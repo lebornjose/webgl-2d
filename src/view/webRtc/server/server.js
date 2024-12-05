@@ -101,8 +101,6 @@ const httpConnectIoCallBack = sock => {
     socks[toUser.sockId].emit('addIceCandidate', data.candidate)
   })
   sock.on('receiveOffer', data => {
-    console.log('data', data)
-    console.log('offer', data.offer)
     const toUser = rooms[data.user.roomId].find(
       item => item.sockId !== data.user.sockId
     )
