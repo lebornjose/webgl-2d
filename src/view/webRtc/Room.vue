@@ -211,7 +211,7 @@ const initSocketEvents = () => {
         // 创建本地视频流信息
         const stream = await createLocalVideoStream();
         localStream.value = stream
-        debugger
+        document.querySelector('#echat-local').srcObject = localStream.value;
         peer.value = new RTCPeerConnection()
         initPeerListen()
         peer.value.addStream(localStream.value)
