@@ -100,20 +100,16 @@ const createLocalVideoStream = async () => {
     return stream;
 }
 const initPeerListen = () => {
-    debugger
     peer.value.onicecandidate = (event) => {
-        debugger
         if (event.candidate) {
             socket.emit('addIceCandidate', { candidate: event.candidate, user: user.value });
         }
     };
     peer.value.onaddstream = (event) => {
         // 拿到对方的视频流
-        debugger
         document.querySelector('#echat-remote-1').srcObject = event.stream;
     };
     peer.value.onclose = () => {
-        debugger
      };
 }
 const initSocketEvents = () => {
