@@ -15,6 +15,7 @@
             <a-button type="primary" @click="toUrl('effect')">九宫格特效</a-button>
             <a-button type="primary" @click="toUrl('crop')">视频裁剪</a-button>
             <a-button type="primary" @click="toUrl('matrix')">平移, 缩放，旋转</a-button>
+            <a-button type="primary" @click="toUrl('videoAnimation')">视频动画</a-button>
         </div>
         <h2>webCodecs</h2>
         <div class="list">   

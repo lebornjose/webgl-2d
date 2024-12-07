@@ -1,5 +1,11 @@
 <template>
     <div class="m-room-wrapper">
+        <div class="tips-area">
+            <h1>tips:</h1>
+            <p>1. 当前页面webRtc的简单小demo</p>
+            <p>2. 当前页面使用的是socket.io 协议进行视频流的管理</p>
+            <p>3. 如果想要使用demo需要先启动server/server.js 服务 /webRTC/server</p>
+        </div>
         <div class="can-support-rtc" v-if="canSupportVideo">
             <div class="form-area" v-if="showFormArea">
                 <a-form>
@@ -308,4 +314,18 @@ if (canSupportWebRTC()) {
     display: flex;
     gap: 12px;
 }
+.tips-area {
+    margin-bottom: 20px;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f0f5ff;
+    h1 {
+        font-size: 16px;
+        font-weight: bold;
+    }
+    p {
+        margin-bottom: 12px;
+    }
+} 
 </style>
