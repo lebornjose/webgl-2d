@@ -1,33 +1,34 @@
-import type { App } from 'vue'
+import type { App } from 'vue';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import Matrix from '../view/videoEffect/matrix.vue'
-import Flip from '../view/videoEffect/flip.vue'
-import Crop from '../view/videoEffect/crop.vue'
-import Filter from '../view/videoEffect/filter.vue'
-import Color from '../view/videoEffect/color.vue'
-import Mask from '../view/videoEffect/mask.vue'
-import Hue from '../view/Hue.vue'
-import CirMask from '../view/videoEffect/cir_mask.vue'
-import FiveMask from '../view/five_mask.vue'
-import Transition from '../view/videoEffect/transition.vue'
-import InAnimation from '../view/videoEffect/in_animation.vue'
-import Effect from '../view/videoEffect/effect.vue'
-import Clip from '../view/webAv/clip.vue'
-import WebAv from '../view/webAv/web_av.vue'
-import WebAvFrame from '../view/webAv/web_av_frame.vue'
-import WebAvSpilt from '../view/webAv/webav_videoSpilt.vue'
-import Index from '../view/index.vue'
-import WebAvVideoAudio from '../view/webAv/webav_video_audio.vue'
-import WebAvCanvasAudio from '../view/webAv/web_av_canvas_record.vue'
-import WebAvCanvasCamera from '../view/webAv/web_av_canvas_camera.vue'
-import CanvasToVideo from '../view/canvas_to_video.vue'
-import CanvasToMp4 from '../view/canvas_to_mp4.vue'
-import CanvasMp4 from '../view/canvas_mp4.vue'
-import Canvas2Mp4 from '../view/canvas_to2_mp4.vue'
-import GreenScreen from '../view/webAv/greenScreen.vue'
-import CanvasRecord from '../view/canvasToMp4/canvas_record.vue'
-import WebRtc from '../view/webRtc/index.vue'
-import Room from '../view/webRtc/Room.vue'
+import CanvasMp4 from '../view/canvas_mp4.vue';
+import Canvas2Mp4 from '../view/canvas_to2_mp4.vue';
+import CanvasToMp4 from '../view/canvas_to_mp4.vue';
+import CanvasToVideo from '../view/canvas_to_video.vue';
+import CanvasRecord from '../view/canvasToMp4/canvas_record.vue';
+import FiveMask from '../view/five_mask.vue';
+import Hue from '../view/Hue.vue';
+import Index from '../view/index.vue';
+import CirMask from '../view/videoEffect/cir_mask.vue';
+import Color from '../view/videoEffect/color.vue';
+import Crop from '../view/videoEffect/crop.vue';
+import Effect from '../view/videoEffect/effect.vue';
+import Filter from '../view/videoEffect/filter.vue';
+import Flip from '../view/videoEffect/flip.vue';
+import InAnimation from '../view/videoEffect/in_animation.vue';
+import Mask from '../view/videoEffect/mask.vue';
+import Matrix from '../view/videoEffect/matrix.vue';
+import Transition from '../view/videoEffect/transition.vue';
+import VideoAnimation from '../view/videoEffect/video_animation.vue';
+import Clip from '../view/webAv/clip.vue';
+import GreenScreen from '../view/webAv/greenScreen.vue';
+import WebAv from '../view/webAv/web_av.vue';
+import WebAvCanvasCamera from '../view/webAv/web_av_canvas_camera.vue';
+import WebAvCanvasAudio from '../view/webAv/web_av_canvas_record.vue';
+import WebAvFrame from '../view/webAv/web_av_frame.vue';
+import WebAvVideoAudio from '../view/webAv/webav_video_audio.vue';
+import WebAvSpilt from '../view/webAv/webav_videoSpilt.vue';
+import WebRtc from '../view/webRtc/index.vue';
+import Room from '../view/webRtc/Room.vue';
 const routes = [
     {
         path: '/',
@@ -67,6 +68,11 @@ const routes = [
       path: '/mask',
       name: 'mask',
       component: Mask
+    },
+    {
+      path: '/video_animation',
+      name: 'videoAnimation',
+      component: VideoAnimation
     },
     {
       path: '/hue',

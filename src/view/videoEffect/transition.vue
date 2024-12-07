@@ -1,18 +1,20 @@
 
 <template>
-    <div>使用webgl 实现视频的转场功能功能</div>
-    <canvas id="webgl"></canvas>
+    <div class="container">
+        <div>使用webgl 实现视频的转场功能功能</div>
+        <canvas id="webgl"></canvas>
 
-    <p>时间: {{ currentTime  }}</p>
-    <div class="flex">
-        <button @click="play">播放</button>
-        <button @click="pause">暂停</button>
+        <p>时间: {{ currentTime  }}</p>
+        <div class="flex">
+            <button @click="play">播放</button>
+            <button @click="pause">暂停</button>
+        </div>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { initShaders } from '../../utils/utils'
+import { initShaders } from '../../utils/utils';
 
 const vertexShaderSource = `
   attribute vec2 a_Position;
@@ -207,3 +209,13 @@ onMounted(() => {
 })
 
 </script>
+
+<style scoped>
+.container{
+    .container{
+    padding: 20px;
+    width: 800px;
+    margin: 20px auto;
+    }
+}
+</style>

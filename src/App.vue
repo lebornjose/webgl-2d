@@ -25,4 +25,9 @@
 .logo.vue:hover {
   filter: drop-shadow(0 0 2em #42b883aa);
 }
+.container{
+  padding: 20px;
+  width: 800px;
+  margin: 20px auto;
+}
 </style>
