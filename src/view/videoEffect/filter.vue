@@ -1,15 +1,17 @@
 <template>
-    <div>使用webgl 实现视频的滤镜功能</div>
-    <canvas id="webgl"></canvas>
-    <div class="flex">
-      <button @click="play">播放</button>
-      <button @click="pause">暂停</button>
+    <div class="container">
+        <div>使用webgl 实现视频的滤镜功能</div>
+        <canvas id="webgl"></canvas>
+        <div class="flex">
+            <a-button @click="play" type="primary">播放</a-button>
+            <a-button @click="pause">暂停</a-button>
+        </div>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { onMounted } from 'vue';
-import { initShaders } from '../../utils/utils'
+import { initShaders } from '../../utils/utils';
 
 const vertexShaderSource = `
     attribute vec2 a_Position;

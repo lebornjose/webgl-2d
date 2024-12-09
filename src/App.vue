@@ -7,27 +7,20 @@
   </div>
 </template>
 
-<style scoped>
+<style>
 
 *{
   margin: 0;
   padding: 0;
 }
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
 .container{
   padding: 20px;
   width: 800px;
   margin: 20px auto;
+  .flex{
+    display: flex;
+    gap: 10px;
+    margin-left: 0;
+  }
 }
 </style>

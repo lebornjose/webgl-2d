@@ -1,15 +1,17 @@
 <template>
-    <div>使用webgl 实现视频的镜像翻转功能</div>
-    <canvas id="webgl"></canvas>
-    <div class="flex">
-      <button @click="play">播放</button>
-      <button @click="pause">播放</button>
+    <div class="container">
+      <div>使用webgl 实现视频的镜像翻转功能</div>
+      <canvas id="webgl"></canvas>
+      <div class="flex">
+        <button @click="play">播放</button>
+        <button @click="pause">播放</button>
+      </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import { initShaders } from '../../utils/utils'
+import { initShaders } from '../../utils/utils';
 
 
 const vertexShaderSource = `

@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { onMounted, reactive } from 'vue';
-import { initShaders } from '../utils/utils'
+import { initShaders } from '../utils/utils';
 
 const state = reactive({
   hue: 0
@@ -189,7 +189,6 @@ h3 {
   margin: 20px auto;
 }
 .flex{
-  margin-left: 30px;
   width: 400px;
 }
 .item{
