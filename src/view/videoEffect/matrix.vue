@@ -4,7 +4,7 @@
       <canvas id="webgl"></canvas>
       <div class="flex">
         <button @click="play">播放</button>
-        <button @click="pause">播放</button>
+        <button @click="pause">暂停</button>
       </div>
    </div>
 </template>
