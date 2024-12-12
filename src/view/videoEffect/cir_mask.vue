@@ -1,17 +1,19 @@
 
 <template>
-    <div>使用webgl 实现画面的圆形蒙版功能</div>
-    <canvas id="webgl"></canvas>
-    <div class="flex">
-      <button @click="play">播放</button>
-      <button @click="pause">暂停</button>
-      <button @click="reversal">蒙版反转</button>
-    </div>
+    <div class="container">
+      <div>使用webgl 实现画面的圆形蒙版功能</div>
+      <canvas id="webgl"></canvas>
+      <div class="flex">
+        <button @click="play">播放</button>
+        <button @click="pause">暂停</button>
+        <button @click="reversal">蒙版反转</button>
+      </div>
+    </div>  
   </template>
     
   <script setup lang="ts">
   import { onMounted } from 'vue';
-  import { initShaders } from '../../utils/utils'
+import { initShaders } from '../../utils/utils';
   
   
   const vertexShaderSource = `
