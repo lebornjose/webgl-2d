@@ -270,7 +270,6 @@ h3 {
 }
 
 .flex {
-  margin-left: 30px;
   width: 400px;
 }
 
