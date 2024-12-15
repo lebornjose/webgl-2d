@@ -105,11 +105,8 @@ onMounted(() => {
 
   let matrix = new TransformationMatrix()
   matrix.scale(0.5, 0.5); // 缩放0.5
-
   matrix.translate(0.5, 0); // 向右平移
-
   matrix.rotate(15); // 旋转15
-
   // matrix1.multiply(matrix2);
   gl.uniformMatrix3fv(u_MvpMatrix, false, matrix.elements);
  
