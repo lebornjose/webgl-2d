@@ -149,26 +149,26 @@ onMounted(() => {
     gl.bufferData(gl.ARRAY_BUFFER, source, gl.STATIC_DRAW);
     const a_Position = gl.getAttribLocation(gl.program, 'a_Position');
 
-        // 方法绑定当前缓冲区范围到gl.ARRAY_BUFFER,成为当前顶点缓冲区对象的通用顶点属性并指定它的布局
+    // 方法绑定当前缓冲区范围到gl.ARRAY_BUFFER,成为当前顶点缓冲区对象的通用顶点属性并指定它的布局
     gl.vertexAttribPointer(
-    a_Position,
-    2,
-    gl.FLOAT,
-    false,
-    0,
-    0
+        a_Position,
+        2,
+        gl.FLOAT,
+        false,
+        0,
+        0
     );
     // 无论怎样，都需要你使用enableVertexAttribArray()方法，来激活每一个属性以便使用，不被激活的属性是不会被使用的。一旦激活，以下其他方法就可以获取到属性的值了
     gl.enableVertexAttribArray(a_Position);
 
     const texCoordLocation = gl.getAttribLocation(gl.program, 'a_texCoord');
     gl.vertexAttribPointer(
-    texCoordLocation,
-    2,
-    gl.FLOAT,
-    false,
-    0,
-    0
+        texCoordLocation,
+        2,
+        gl.FLOAT,
+        false,
+        0,
+        0
     );
 
     gl.enableVertexAttribArray(texCoordLocation);
