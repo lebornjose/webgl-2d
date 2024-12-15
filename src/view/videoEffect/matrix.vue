@@ -1,16 +1,18 @@
 <template>
-    <div>使用二维场景的平移, 缩放，旋转</div>
-    <canvas id="webgl"></canvas>
-    <div class="flex">
-      <button @click="play">播放</button>
-      <button @click="pause">播放</button>
-    </div>
+   <div class="container">
+      <div>使用二维场景的平移, 缩放，旋转</div>
+      <canvas id="webgl"></canvas>
+      <div class="flex">
+        <button @click="play">播放</button>
+        <button @click="pause">暂停</button>
+      </div>
+   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import TransformationMatrix from '../../utils/mat3'
-import { initShaders } from '../../utils/utils'
+import TransformationMatrix from '../../utils/mat3';
+import { initShaders } from '../../utils/utils';
 
 
 const vertexShaderSource = `
